@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GalleryX
+namespace GalleryBusiness
 {
     /// <summary>
     /// A piece of Artwork created by an artist.
