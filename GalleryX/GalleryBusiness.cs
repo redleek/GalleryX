@@ -6,6 +6,36 @@ using System.Text;
 
 namespace GalleryBusiness
 {
+  class ArtworkException : System.Exception
+  {
+    public ArtworkException(string message) : base(message)
+      { }
+  }
+
+  class ArtworkExceptionBadPrice : ArtworkException
+  {
+    public ArtworkExceptionBadPrice(string message) : base(message)
+      { }
+  }
+
+  class ArtworkExceptionBadDate : ArtworkException
+  {
+    public ArtworkExceptionBadDate(string message) : base(message)
+      { }
+  }
+
+  class ArtworkExceptionBadStateTransfer : ArtworkException
+  {
+    public ArtworkExceptionBadStateTransfer(string message) : base(message)
+      { }
+  }
+
+  class ArtworkExceptionNotInGallery : ArtworkException
+  {
+    public ArtworkExceptionNotInGallery(string message) : base(message)
+      { }
+  }
+  
   /// <summary>
   /// A piece of Artwork created by an artist.
   /// </summary>
@@ -15,6 +45,12 @@ namespace GalleryBusiness
     /// The maximum number of days an Artwork can be displayed for.
     /// </summary>
     public const int MAX_DISPLAY_DAYS = 14;
+
+    public const int MAX_PRICE = 1000000;
+
+    public const int MIN_PRICE = 0;
+
+    public const int MAX_DISPLAYDAYS_DIFFERENCE = 3650;
     
     /// <summary>
     /// Stores the type of the Artwork.
@@ -31,8 +67,9 @@ namespace GalleryBusiness
     public enum ArtworkState
       {
 	InGallery,
+	AwaitingGalleryEntry,
 	Sold,
-	Returned
+	ReturnedToArtist
       }
     
     private string mDescription;
@@ -40,21 +77,35 @@ namespace GalleryBusiness
     private List<DateTime> mDisplayDates;
     private ArtworkType mType;
     private ArtworkState mState;
-    private Artist OwningArtist;
+    private Artist mOwner;
     
     /// <summary>
     /// Create a new instance of an Artwork loaded from file.
     /// </summary>
     /// <param name="inDescription">A short description of the Artwork.</param>
     /// <param name="inPrice">The initial price of the Artwork.</param>
-    /// <param name="inDisplayDate">The date at which the Artwork was put on display.</param>
+    /// <param name="inDisplayDates">The date at which the Artwork was put on display.</param>
     /// <param name="inType">The type of the Artwork. Either Painting or Sculpture.</param>
     /// <param name="inState">The state of the Artwork.</param>
-    /// <param name="inID">Unique stock ID of the Artwork.</param>
-    private Artwork(string inDescription, decimal inPrice, List<DateTime> inDisplayDates, ArtworkType inType, ArtworkState inState)
+    private Artwork(string inDescription, decimal inPrice, List<DateTime> inDisplayDates, ArtworkType inType,
+		    ArtworkState inState)
     {
       mDescription = inDescription;
-      mPrice = inPrice;
+      if (inPrice > MIN_PRICE)
+	{
+	  if (inPrice < MAX_PRICE)
+	    {
+	      mPrice = inPrice;
+	    }
+	  else
+	    {
+	      throw new ArtworkExceptionBadPrice("Price: " + inPrice + ", is too high. Above " + MAX_PRICE);
+	    }
+	}
+      else
+	{
+	  throw new ArtworkExceptionBadPrice("Price: " + inPrice + ", is below " + MIN_PRICE);
+	}
       if (inDisplayDates != null)
 	{
 	  mDisplayDates = inDisplayDates;
@@ -70,16 +121,102 @@ namespace GalleryBusiness
     /// <param name="inPrice">The initial price of the Artwork.</param>
     /// <param name="inDisplayDate">The date at which the Artwork was put on display.</param>
     /// <param name="inType">The type of the Artwork. Either Painting or Sculpture.</param>
-    /// <param name="inID">Unique stock ID of the Artwork.</param>
-    public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState)
+    /// <param name="inState">The current state of the Artwork.</param>
+    public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState, Artist inOwner)
     : this(inDescription, inPrice, null, inType, inState)
     {
+      double dateDifference = (inDisplayDate - DateTime.Now).TotalDays;
+      if (dateDifference > MAX_DISPLAYDAYS_DIFFERENCE)
+	{
+	  throw new ArtworkExceptionBadDate("DateTime: " + inDisplayDate + " is too far back in the past. Date is "
+						   + dateDifference + " days ago.");
+	}
       mDisplayDates = new List<DateTime>();
       mDisplayDates.Add(inDisplayDate);
+      mOwner = inOwner;
     }
 
-    // Used to calculate the difference in days.
-    //if ((pCurrentDate - mDisplayDate).TotalDays > MAX_DISPLAY_DAYS)
+    public string Description
+    {
+      get { return mDescription; }
+    }
+
+    public decimal Price
+    {
+      get { return mPrice; }
+    }
+
+    public List<DateTime> DisplayDates
+    {
+      get { return mDisplayDates; }
+    }
+
+    public DateTime MostRecentDisplayDate
+    {
+      get { return mDisplayDates.Last(); }
+    }
+
+    public ArtworkType Type
+    {
+      get { return mType; }
+    }
+
+    public ArtworkState State
+    {
+      get { return mState; }
+    }
+
+    public int ID
+    {
+      get { return mOwner.FindArtworkID(this); }
+    }
+
+    public bool GalleryTimeExpired(DateTime pCurrentDateTime)
+    {
+      if (mState == ArtworkState.ReturnedToArtist && (pCurrentDateTime - MostRecentDisplayDate).TotalDays > MAX_DISPLAY_DAYS)
+	{
+	  return true;
+	}
+      return false;
+    }
+
+    // Time since gallery time expired.
+    public double TimeSinceExpired(DateTime pCurrentDateTime)
+    {
+      if (mState == ArtworkState.ReturnedToArtist)
+	{
+	  return (pCurrentDateTime - MostRecentDisplayDate).TotalDays - MAX_DISPLAY_DAYS;
+	}
+      throw new ArtworkException("Artwork \"" + mDescription + "\" has not been returned to the artist to have an expiratory date.");
+    }
+
+    public void ChangePrice(decimal pNewPrice)
+    {
+      if (pNewPrice > MIN_PRICE)
+	{
+	  if (pNewPrice < MAX_PRICE)
+	    {
+	      mPrice = pNewPrice;
+	      return;
+	    }
+	  throw new ArtworkExceptionBadPrice("Price: " + pNewPrice + ", is too high. Above " + MAX_PRICE);
+	}
+      throw new ArtworkExceptionBadPrice("Price: " + pNewPrice + ", is below 0.");
+    }
+
+    public void ChangeDescription(string pNewDescription)
+    {
+      mDescription = pNewDescription;
+    }
+
+    public void AddToGallery()
+    {
+      if (mState != ArtworkState.InGallery)
+	{
+	  
+	}
+      throw new ArtworkException("Artwork: " + ID + ", is already in the Gallery.");
+    }
 
     public void Save(System.IO.TextWriter pTextOut)
     {
@@ -176,12 +313,12 @@ namespace GalleryBusiness
     }
     
     /// <summary>
-    /// Get a diagnostic of the Artwork to check it's validity when loaded from a file.
+    /// String format of the Artwork.
     /// </summary>
     /// <returns>Returns a string of all the data members of the Artwork.</returns>
       public override string ToString()
       {
-	return "Description: " + mDescription + ", Price: £" + mPrice + ", Display date: " /*+ RecentDisplayDate()*/ + ", Artwork type: " + mType + ", Artwork state: " + mState + ", Owning Artist: " /*+ mOwningArtist.Name*/;
+	return "Description: " + mDescription + ", Price: £" + mPrice + ", Display date: " + MostRecentDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
     }
   }
   
@@ -189,7 +326,31 @@ namespace GalleryBusiness
   /// An Artist who sells Artwork in a gallery.
   /// </summary>
   class Artist
-  {}
+  {
+    private Dictionary<int, Artwork> mStock = new Dictionary<int, Artwork>();
+    private int mStockID = 1;
+
+    public Artist()
+    { }
+
+    public int FindArtworkID(Artwork pArtworkRef)
+    {
+      foreach (KeyValuePair<int, Artwork> kvp in mStock)
+	{
+	  if (kvp.Value == pArtworkRef)
+	    {
+	      return kvp.Key;
+	    }
+	}
+      return 0;
+    }
+
+    public void AddArtwork(Artwork pNewArtwork)
+    {
+      mStock.Add(mStockID, pNewArtwork);
+      mStockID++;
+    }
+  }
   /*
   class Artist
   {
