@@ -77,7 +77,6 @@ namespace GalleryBusiness
     private List<DateTime> mDisplayDates;
     private ArtworkType mType;
     private ArtworkState mState;
-    private Artist mOwner;
     
     /// <summary>
     /// Create a new instance of an Artwork loaded from file.
@@ -122,7 +121,7 @@ namespace GalleryBusiness
     /// <param name="inDisplayDate">The date at which the Artwork was put on display.</param>
     /// <param name="inType">The type of the Artwork. Either Painting or Sculpture.</param>
     /// <param name="inState">The current state of the Artwork.</param>
-    public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState, Artist inOwner)
+    public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState)
     : this(inDescription, inPrice, null, inType, inState)
     {
       double dateDifference = (inDisplayDate - DateTime.Now).TotalDays;
@@ -133,7 +132,6 @@ namespace GalleryBusiness
 	}
       mDisplayDates = new List<DateTime>();
       mDisplayDates.Add(inDisplayDate);
-      mOwner = inOwner;
     }
 
     public string Description
@@ -164,11 +162,6 @@ namespace GalleryBusiness
     public ArtworkState State
     {
       get { return mState; }
-    }
-
-    public int ID
-    {
-      get { return mOwner.FindArtworkID(this); }
     }
 
     public bool GalleryTimeExpired(DateTime pCurrentDateTime)
@@ -215,7 +208,7 @@ namespace GalleryBusiness
 	{
 	  
 	}
-      throw new ArtworkException("Artwork: " + ID + ", is already in the Gallery.");
+      throw new ArtworkExceptionNotInGallery("This Artwork is currently already in the Gallery.");
     }
 
     public void Save(System.IO.TextWriter pTextOut)
@@ -266,12 +259,12 @@ namespace GalleryBusiness
     {
       string loadDescription = pTextIn.ReadLine();
       decimal loadPrice = decimal.Parse(pTextIn.ReadLine());
-      int loadDisplayDatesCount = int.Parse(Console.ReadLine());
+      int loadDisplayDatesCount = int.Parse(pTextIn.ReadLine());
       List<DateTime> loadDisplayDates = new List<DateTime>();
       // Load each display date into new display dates list.
       for (int loadCount = 0; loadCount < loadDisplayDatesCount; loadCount++)
 	{
-	  loadDisplayDates.Add(DateTime.Parse(Console.ReadLine()));
+	  loadDisplayDates.Add(DateTime.Parse(pTextIn.ReadLine()));
 	}
       ArtworkType loadType = (ArtworkType)Enum.Parse(
 						     typeof(ArtworkType),
@@ -289,7 +282,7 @@ namespace GalleryBusiness
     /// </summary>
     /// <param name="pFileName">File to load from.</param>
     /// <returns>Returns a fully loaded Artwork class.</returns>
-    public static Artwork Load(string pFileName)
+    public static Artwork Load(string pFileName, Artist pOwner)
     {
       Artwork outArtwork;
       System.IO.TextReader TextIn = null;
@@ -325,6 +318,7 @@ namespace GalleryBusiness
   /// <summary>
   /// An Artist who sells Artwork in a gallery.
   /// </summary>
+  /*
   class Artist
   {
     private Dictionary<int, Artwork> mStock = new Dictionary<int, Artwork>();
@@ -351,7 +345,8 @@ namespace GalleryBusiness
       mStockID++;
     }
   }
-  /*
+  */
+
   class Artist
   {
     /// <summary>
@@ -422,6 +417,7 @@ namespace GalleryBusiness
     /// </summary>
     /// <param name="pID">The ID of the Artwork to find.</param>
     /// <returns>Returns the reference to the Artwork.</returns>
+    /*
     public Artwork FindArtwork(int pID)
     {
       foreach (Artwork artwork in mStock)
@@ -433,11 +429,13 @@ namespace GalleryBusiness
 	}
       return null;
     }
+    */
     
     /// <summary>
     /// Remove a particular Artwork 
     /// </summary>
     /// <param name="pID">The ID of the Artwork to remove.</param>
+    /*
     public bool RemoveArtwork(int pID)
     {
       Artwork artwork = FindArtwork(pID);
@@ -448,6 +446,7 @@ namespace GalleryBusiness
       mStock.Remove(artwork);
       return true;
     }
+    */
     
     /// <summary>
     /// Write Artist information to a TextWriter stream.
@@ -546,5 +545,5 @@ namespace GalleryBusiness
       return "Artist name: " + mName + ", Number of stock items: " + mStock.Count + ", Artist ID: " + mID;
     }
   }
-  */
+
 }

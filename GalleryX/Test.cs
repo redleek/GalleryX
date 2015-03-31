@@ -40,11 +40,10 @@ namespace Test
       a.ChangeDescription("An Expensive painting");
       Console.WriteLine(a);
       */
-      Artist NewArtist = new Artist();
-      Artwork a = new Artwork("Mona Lisa", 49.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.InGallery, NewArtist);
+      Artist NewArtist = new Artist("Rob Miles", 1);
+      Artwork a = new Artwork("Mona Lisa", 49.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.InGallery);
       NewArtist.AddArtwork(a);
-      int ID = NewArtist.FindArtworkID(a);
-      Console.WriteLine(ID);
+      Console.WriteLine("New artwork: " + a);
       try
 	{
 	  a.AddToGallery();
@@ -53,10 +52,10 @@ namespace Test
 	{
 	  Console.WriteLine(e.Message);
 	}
-      Console.WriteLine(a);
-      a.Save("save.txt");
-      Artwork b = Artwork.Load("save.txt");
-      Console.WriteLine(b);
+      Console.WriteLine("New artist: " + NewArtist);
+      NewArtist.Save("save.txt");
+      Artist loadedArtist = Artist.Load("save.txt");
+      Console.WriteLine("Loaded artist: " + loadedArtist);
     }
   }
 }
