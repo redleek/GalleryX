@@ -124,6 +124,7 @@ namespace GalleryBusiness
     public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState)
     : this(inDescription, inPrice, null, inType, inState)
     {
+      // TODO: Make this into a method.
       double dateDifference = (inDisplayDate - DateTime.Now).TotalDays;
       if (dateDifference > MAX_DISPLAYDAYS_DIFFERENCE)
 	{
@@ -131,7 +132,10 @@ namespace GalleryBusiness
 						   + dateDifference + " days ago.");
 	}
       mDisplayDates = new List<DateTime>();
-      mDisplayDates.Add(inDisplayDate);
+      if (inState == ArtworkState.InGallery)
+	{
+	  mDisplayDates.Add(inDisplayDate);
+	}
     }
 
     public string Description
@@ -151,7 +155,14 @@ namespace GalleryBusiness
 
     public DateTime MostRecentDisplayDate
     {
-      get { return mDisplayDates.Last(); }
+      get
+	{
+	  if (mDisplayDates.Count == 0)
+	    {
+	      throw new ArtworkException("The Artwork has not yet been placed in the Gallery to have a Display Date.");
+	    }
+	  return mDisplayDates.Last();
+	}
     }
 
     public ArtworkType Type
@@ -202,13 +213,41 @@ namespace GalleryBusiness
       mDescription = pNewDescription;
     }
 
-    public void AddToGallery()
+    public void AddToGallery(DateTime pNewDisplayDate)
     {
+      switch(mState)
+	{
+	case ArtworkState.InGallery:
+	  throw new ArtworkExceptionBadStateTransfer("This Artwork is already in the Gallery.");
+	case ArtworkState.Sold:
+	  throw new ArtworkExceptionBadStateTransfer("This Artwork has already been sold to a customer.");
+	case ArtworkState.ReturnedToArtist:
+	case ArtworkState.AwaitingGalleryEntry:
+	  mDisplayDates.Add(pNewDisplayDate);
+	  mState = ArtworkState.InGallery;
+	  break;
+	}
+
+      /*
       if (mState != ArtworkState.InGallery)
 	{
-	  
+	  if (mState != ArtworkState.Sold)
+	    {
+	      if (mState == ArtworkState.ReturnedToArtist || mState == ArtworkState.AwaitingGalleryEntry)
+		{
+		  mDisplayDates.Add(pDateTimeAdded);
+		}
+	      mState = ArtworkState.InGallery;
+	    }
+	  throw new ArtworkExceptionBadStateTransfer("Cannot change state from " + mState + " to " + ArtworkState.InGallery + " as the Artwork has already been sold to a customer.");
 	}
-      throw new ArtworkExceptionNotInGallery("This Artwork is currently already in the Gallery.");
+      throw new ArtworkException("This Artwork is currently already in the Gallery.");
+      */
+    }
+
+    public void Sell()
+    {
+      //switch(mState)
     }
 
     public void Save(System.IO.TextWriter pTextOut)
@@ -261,10 +300,13 @@ namespace GalleryBusiness
       decimal loadPrice = decimal.Parse(pTextIn.ReadLine());
       int loadDisplayDatesCount = int.Parse(pTextIn.ReadLine());
       List<DateTime> loadDisplayDates = new List<DateTime>();
-      // Load each display date into new display dates list.
-      for (int loadCount = 0; loadCount < loadDisplayDatesCount; loadCount++)
+      // Load each display date into new display dates list only if there are any in the file.
+      if (loadDisplayDatesCount > 0)
 	{
-	  loadDisplayDates.Add(DateTime.Parse(pTextIn.ReadLine()));
+	  for (int loadCount = 0; loadCount < loadDisplayDatesCount; loadCount++)
+	    {
+	      loadDisplayDates.Add(DateTime.Parse(pTextIn.ReadLine()));
+	    }
 	}
       ArtworkType loadType = (ArtworkType)Enum.Parse(
 						     typeof(ArtworkType),
@@ -311,7 +353,12 @@ namespace GalleryBusiness
     /// <returns>Returns a string of all the data members of the Artwork.</returns>
       public override string ToString()
       {
-	return "Description: " + mDescription + ", Price: £" + mPrice + ", Display date: " + MostRecentDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
+	string InGalleryDisplayDate = "";
+	if (mState == ArtworkState.InGallery)
+	  {
+	    InGalleryDisplayDate = ", DisplayDate: " + MostRecentDisplayDate;
+	  }
+	return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
     }
   }
   

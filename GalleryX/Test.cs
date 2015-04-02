@@ -41,19 +41,21 @@ namespace Test
       Console.WriteLine(a);
       */
       Artist NewArtist = new Artist("Rob Miles", 1);
-      Artwork a = new Artwork("Mona Lisa", 49.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.InGallery);
+      Artwork a = new Artwork("Mona Lisa", 49.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.AwaitingGalleryEntry);
       NewArtist.AddArtwork(a);
       Console.WriteLine("New artwork: " + a);
+      NewArtist.Save("save.txt");
       try
 	{
-	  a.AddToGallery();
+	  a.AddToGallery(DateTime.Now);
+	  Console.WriteLine("Artwork added to Gallery: " + a);
 	}
       catch(ArtworkException e)
 	{
 	  Console.WriteLine(e.Message);
 	}
       Console.WriteLine("New artist: " + NewArtist);
-      NewArtist.Save("save.txt");
+      //NewArtist.Save("save.txt");
       Artist loadedArtist = Artist.Load("save.txt");
       Console.WriteLine("Loaded artist: " + loadedArtist);
     }
