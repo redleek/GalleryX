@@ -223,31 +223,15 @@ namespace GalleryBusiness
 	  throw new ArtworkExceptionBadStateTransfer("This Artwork has already been sold to a customer.");
 	case ArtworkState.ReturnedToArtist:
 	case ArtworkState.AwaitingGalleryEntry:
+	  // TODO: Check display date with new method to be written.
 	  mDisplayDates.Add(pNewDisplayDate);
 	  mState = ArtworkState.InGallery;
 	  break;
 	}
-
-      /*
-      if (mState != ArtworkState.InGallery)
-	{
-	  if (mState != ArtworkState.Sold)
-	    {
-	      if (mState == ArtworkState.ReturnedToArtist || mState == ArtworkState.AwaitingGalleryEntry)
-		{
-		  mDisplayDates.Add(pDateTimeAdded);
-		}
-	      mState = ArtworkState.InGallery;
-	    }
-	  throw new ArtworkExceptionBadStateTransfer("Cannot change state from " + mState + " to " + ArtworkState.InGallery + " as the Artwork has already been sold to a customer.");
-	}
-      throw new ArtworkException("This Artwork is currently already in the Gallery.");
-      */
     }
 
     public void Sell()
     {
-      //switch(mState)
     }
 
     public void Save(System.IO.TextWriter pTextOut)
