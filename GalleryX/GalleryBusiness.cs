@@ -311,12 +311,30 @@ namespace GalleryBusiness
             switch (mState)
             {
                 case ArtworkState.Sold:
-                    throw new ArtworkException("Artwork is already sold.");
+                    throw new ArtworkExceptionBadStateTransfer("Artwork is already sold.");
                 case ArtworkState.AwaitingGalleryEntry:
-                    throw new ArtworkException("Artwork has not been in the Gallery to sell.");
+                    throw new ArtworkExceptionBadStateTransfer("Artwork has not been in the Gallery to sell.");
                 case ArtworkState.ReturnedToArtist:
                 case ArtworkState.InGallery:
                     mState = ArtworkState.Sold;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Change the state of the Artwork to returned to the Artist.
+        /// </summary>
+        public void ReturnToArtist()
+        {
+            switch (mState)
+            {
+                case ArtworkState.ReturnedToArtist:
+                    throw new ArtworkExceptionBadStateTransfer("Artwork is already returned to Artist.");
+                case ArtworkState.Sold:
+                    throw new ArtworkExceptionBadStateTransfer("Artwork has been sold to a customer already.");
+                case ArtworkState.AwaitingGalleryEntry:
+                case ArtworkState.InGallery:
+                    mState = ArtworkState.ReturnedToArtist;
                     break;
             }
         }
@@ -438,6 +456,28 @@ namespace GalleryBusiness
                 InGalleryDisplayDate = ", DisplayDate: " + MostRecentDisplayDate;
             }
             return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
+        }
+
+        /// <summary>
+        /// Checks to see if the passed object has the same content as the current one.
+        /// </summary>
+        /// <param name="obj">The object to check by comparison.</param>
+        /// <returns>Whether or not the objects have equal content.</returns>
+        public override bool Equals(object obj)
+        {
+            Artwork comparison = (Artwork)obj;
+
+            bool Description = (mDescription == comparison.mDescription);
+            bool Price = (mPrice == comparison.mPrice);
+            bool DisplayDates = (mDisplayDates == comparison.mDisplayDates);
+            bool Type = (mType == comparison.mType);
+            bool State = (mState == comparison.mState);
+
+            if (Description && Price && DisplayDates && Type && State)
+            {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -672,5 +712,4 @@ namespace GalleryBusiness
             return "Artist name: " + mName + ", Number of stock items: " + mStock.Count + ", Artist ID: " + mID;
         }
     }
-
 }

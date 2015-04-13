@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalleryBusiness;
+using System.Collections.ObjectModel;
 
 namespace GalleryX
 {
@@ -49,15 +50,23 @@ namespace GalleryX
                     Artwork.ArtworkType.Sculpture,
                     Artwork.ArtworkState.AwaitingGalleryEntry)
                 );
+            if (artwork3.Equals(artwork3))
+            {
+                Console.WriteLine("Equal");
+            }
+            else
+            {
+                Console.WriteLine("Not Equal");
+            }
             artist.Save("test_save.txt");
         }
 
         public MainWindow()
         {
             InitializeComponent();
-            Title = "GalleryX";
-            //Test();
-            Artist loadedArtist = Artist.Load("test_save.txt");
+            string thisGalleryName = "GalleryX";
+            Title = thisGalleryName;
+            Test();
         }
     }
 }
