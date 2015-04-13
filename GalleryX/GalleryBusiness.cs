@@ -19,6 +19,16 @@ namespace GalleryBusiness
     /// <summary>
     /// Invalid Artwork Price Exception.
     /// </summary>
+    class ArtworkExceptionBadDescription : ArtworkException
+    {
+        public ArtworkExceptionBadDescription(string message)
+            : base(message)
+        { }
+    }
+
+    /// <summary>
+    /// Invalid Artwork Price Exception.
+    /// </summary>
     class ArtworkExceptionBadPrice : ArtworkException
     {
         public ArtworkExceptionBadPrice(string message)
@@ -118,7 +128,11 @@ namespace GalleryBusiness
         private Artwork(string inDescription, decimal inPrice, List<DateTime> inDisplayDates, ArtworkType inType,
                 ArtworkState inState)
         {
-            mDescription = inDescription;
+            //mDescription = inDescription;
+            if (!ChangeDescription(inDescription))
+            {
+                throw new ArtworkExceptionBadDescription("Description is blank.");
+            }
             if (inPrice > MIN_PRICE)
             {
                 if (inPrice < MAX_PRICE)
@@ -153,18 +167,31 @@ namespace GalleryBusiness
         public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState)
             : this(inDescription, inPrice, null, inType, inState)
         {
-            // TODO: Make this into a method.
-            double dateDifference = (inDisplayDate - DateTime.Now).TotalDays;
-            if (dateDifference > MAX_DISPLAYDAYS_DIFFERENCE)
+            if (DateDifference(inDisplayDate))
             {
-                throw new ArtworkExceptionBadDate("DateTime: " + inDisplayDate + " is too far back in the past. Date is "
-                                     + dateDifference + " days ago.");
+                throw new ArtworkExceptionBadDate("DateTime: " + inDisplayDate + " is too far back in the past. Exceeds max days of: "
+                    + MAX_DISPLAYDAYS_DIFFERENCE + ".");
             }
             mDisplayDates = new List<DateTime>();
             if (inState == ArtworkState.InGallery)
             {
                 mDisplayDates.Add(inDisplayDate);
             }
+        }
+
+        /// <summary>
+        /// Checks if a given date exceeds over the time of the set max date difference from current time.
+        /// </summary>
+        /// <param name="pCheckDate">DateTime to check.</param>
+        /// <returns>Whether or not the date exceeds the limit.</returns>
+        private bool DateDifference(DateTime pCheckDate)
+        {
+            double dateDifference = (pCheckDate - DateTime.Now).TotalDays;
+            if (dateDifference > MAX_DISPLAYDAYS_DIFFERENCE)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -300,7 +327,11 @@ namespace GalleryBusiness
                     throw new ArtworkExceptionBadStateTransfer("This Artwork has already been sold to a customer.");
                 case ArtworkState.ReturnedToArtist:
                 case ArtworkState.AwaitingGalleryEntry:
-                    // TODO: Check display date with new method to be written.
+                    if (DateDifference(pNewDisplayDate))
+                    {
+                        throw new ArtworkExceptionBadDate("DateTime: " + pNewDisplayDate + " is too far back in the past. Exceeds max days of: "
+                    + MAX_DISPLAYDAYS_DIFFERENCE + ".");
+                    }
                     mDisplayDates.Add(pNewDisplayDate);
                     mState = ArtworkState.InGallery;
                     break;
