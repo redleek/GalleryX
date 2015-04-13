@@ -241,28 +241,29 @@ namespace GalleryBusiness
         /// The time since the gallery time has expired.
         /// </summary>
         /// <param name="pCurrentDateTime">The time to check against the display date of the Artwork.</param>
-        /// <returns>The amount of time since the Artwork's gallery time expired.</returns>
+        /// <returns>The amount of time since the Artwork's gallery time expired. If there is no time since expired, returns -1.</returns>
         public double TimeSinceExpired(DateTime pCurrentDateTime)
         {
             if (mState == ArtworkState.ReturnedToArtist)
             {
                 return (pCurrentDateTime - MostRecentDisplayDate).TotalDays - MAX_DISPLAY_DAYS;
             }
-            throw new ArtworkException("Artwork \"" + mDescription + "\" has not been returned to the artist to have an expiratory date.");
+            return -1;
         }
 
         /// <summary>
         /// Change the price of the Artwork.
         /// </summary>
         /// <param name="pNewPrice">New price to change to.</param>
-        public void ChangePrice(decimal pNewPrice)
+        /// <returns>If the change of price was successful. Throws exceptions if pNewPrice is not between limits.</returns>
+        public bool ChangePrice(decimal pNewPrice)
         {
             if (pNewPrice > MIN_PRICE)
             {
-                if (pNewPrice < MAX_PRICE)
+                if (pNewPrice <= MAX_PRICE)
                 {
                     mPrice = pNewPrice;
-                    return;
+                    return true;
                 }
                 throw new ArtworkExceptionBadPrice("Price: " + pNewPrice + ", is too high. Above " + MAX_PRICE);
             }
@@ -273,13 +274,16 @@ namespace GalleryBusiness
         /// Change the description of the Artwork.
         /// </summary>
         /// <param name="pNewDescription">New decription of the Artwork.</param>
-        public void ChangeDescription(string pNewDescription)
+        /// <returns>Whether or not the change of description was successful.</returns>
+        public bool ChangeDescription(string pNewDescription)
         {
             pNewDescription = pNewDescription.Trim();
             if (pNewDescription != "")
             {
                 mDescription = pNewDescription;
+                return true;
             }
+            return false;
         }
 
         /// <summary>
