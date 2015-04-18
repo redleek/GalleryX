@@ -17,7 +17,7 @@ namespace GalleryBusiness
     }
 
     /// <summary>
-    /// Invalid Artwork Price Exception.
+    /// Invalid Artwork Description Exception.
     /// </summary>
     class ArtworkExceptionBadDescription : ArtworkException
     {
@@ -92,6 +92,11 @@ namespace GalleryBusiness
         public const int MAX_DISPLAYDAYS_DIFFERENCE = 3650;
 
         /// <summary>
+        /// Limits the amount of characters allowed in a description.
+        /// </summary>
+        public const int MAX_DESCRIPTION_LENGTH = 140;
+
+        /// <summary>
         /// Stores the type of the Artwork.
         /// </summary>
         public enum ArtworkType
@@ -116,6 +121,7 @@ namespace GalleryBusiness
         private List<DateTime> mDisplayDates;
         private ArtworkType mType;
         private ArtworkState mState;
+        private Artist mOwner;
 
         /// <summary>
         /// Create a new instance of an Artwork loaded from file.
@@ -126,34 +132,21 @@ namespace GalleryBusiness
         /// <param name="inType">The type of the Artwork. Either Painting or Sculpture.</param>
         /// <param name="inState">The state of the Artwork.</param>
         private Artwork(string inDescription, decimal inPrice, List<DateTime> inDisplayDates, ArtworkType inType,
-                ArtworkState inState)
+                ArtworkState inState, Artist inOwner)
         {
             //mDescription = inDescription;
-            if (!ChangeDescription(inDescription))
+            if (!UpdateDescription(inDescription))
             {
                 throw new ArtworkExceptionBadDescription("Description is blank.");
             }
-            if (inPrice > MIN_PRICE)
-            {
-                if (inPrice < MAX_PRICE)
-                {
-                    mPrice = inPrice;
-                }
-                else
-                {
-                    throw new ArtworkExceptionBadPrice("Price: " + inPrice + ", is too high. Above " + MAX_PRICE);
-                }
-            }
-            else
-            {
-                throw new ArtworkExceptionBadPrice("Price: " + inPrice + ", is below " + MIN_PRICE);
-            }
+            UpdatePrice(inPrice);
             if (inDisplayDates != null)
             {
                 mDisplayDates = inDisplayDates;
             }
             mType = inType;
             mState = inState;
+            mOwner = inOwner;
         }
 
         /// <summary>
@@ -164,8 +157,9 @@ namespace GalleryBusiness
         /// <param name="inDisplayDate">The date at which the Artwork was put on display.</param>
         /// <param name="inType">The type of the Artwork. Either Painting or Sculpture.</param>
         /// <param name="inState">The current state of the Artwork.</param>
-        public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType, ArtworkState inState)
-            : this(inDescription, inPrice, null, inType, inState)
+        public Artwork(string inDescription, decimal inPrice, DateTime inDisplayDate, ArtworkType inType,
+            ArtworkState inState, Artist inOwner)
+            : this(inDescription, inPrice, null, inType, inState, inOwner)
         {
             if (DateDifference(inDisplayDate))
             {
@@ -250,6 +244,19 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// Gets the reference to the owner of the Artwork.
+        /// </summary>
+        public Artist Owner
+        {
+            get { return mOwner; }
+        }
+
+        public int ID
+        {
+            get { return mOwner.GetArtworkID(this); }
+        }
+
+        /// <summary>
         /// Check if the Artwork's time in the Gallery has expired.
         /// </summary>
         /// <param name="pCurrentDateTime">The time to check against the display date of the Artwork.</param>
@@ -279,11 +286,11 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Change the price of the Artwork.
+        /// Update the price of the Artwork.
         /// </summary>
         /// <param name="pNewPrice">New price to change to.</param>
         /// <returns>If the change of price was successful. Throws exceptions if pNewPrice is not between limits.</returns>
-        public bool ChangePrice(decimal pNewPrice)
+        public bool UpdatePrice(decimal pNewPrice)
         {
             if (pNewPrice > MIN_PRICE)
             {
@@ -298,17 +305,21 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Change the description of the Artwork.
+        /// Update the description of the Artwork.
         /// </summary>
         /// <param name="pNewDescription">New decription of the Artwork.</param>
         /// <returns>Whether or not the change of description was successful.</returns>
-        public bool ChangeDescription(string pNewDescription)
+        public bool UpdateDescription(string pNewDescription)
         {
             pNewDescription = pNewDescription.Trim();
             if (pNewDescription != "")
             {
-                mDescription = pNewDescription;
-                return true;
+                if (!(pNewDescription.Length > 150))
+                {
+                    mDescription = pNewDescription;
+                    return true;
+                }
+                throw new ArtworkExceptionBadDescription("Description length is too long by " + (pNewDescription.Length - MAX_DESCRIPTION_LENGTH) + "characters.");
             }
             return false;
         }
@@ -424,7 +435,7 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pTextIn">Stream to load from.</param>
         /// <returns>Returns a fully loaded Artwork class.</returns>
-        public static Artwork Load(System.IO.TextReader pTextIn)
+        public static Artwork Load(System.IO.TextReader pTextIn, Artist pOwner)
         {
             string loadDescription = pTextIn.ReadLine();
             decimal loadPrice = decimal.Parse(pTextIn.ReadLine());
@@ -446,7 +457,7 @@ namespace GalleryBusiness
                                   typeof(ArtworkState),
                                   pTextIn.ReadLine()
                                   );
-            return new Artwork(loadDescription, loadPrice, loadDisplayDates, loadType, loadState);
+            return new Artwork(loadDescription, loadPrice, loadDisplayDates, loadType, loadState, pOwner);
         }
 
 #if DEBUG
@@ -462,7 +473,7 @@ namespace GalleryBusiness
             try
             {
                 TextIn = new System.IO.StreamReader(pFileName);
-                outArtwork = Load(TextIn);
+                outArtwork = Load(TextIn, pOwner);
             }
             catch (Exception E)
             {
@@ -507,8 +518,9 @@ namespace GalleryBusiness
             bool DisplayDates = (mDisplayDates == comparison.mDisplayDates);
             bool Type = (mType == comparison.mType);
             bool State = (mState == comparison.mState);
+            bool Owner = (mOwner == comparison.Owner);
 
-            if (Description && Price && DisplayDates && Type && State)
+            if (Description && Price && DisplayDates && Type && State && Owner)
             {
                 return true;
             }
@@ -557,18 +569,15 @@ namespace GalleryBusiness
 
         private string mName;
         private List<Artwork> mStock;
-        private int mID;
 
         /// <summary>
         /// Create a new instance of an Artist loaded from file.
         /// </summary>
         /// <param name="inName"></param>
         /// <param name="inStock"></param>
-        /// <param name="inID"></param>
-        private Artist(string inName, List<Artwork> inStock, int inID)
+        private Artist(string inName, List<Artwork> inStock)
         {
             mName = inName;
-            mID = inID;
             mStock = inStock;
         }
 
@@ -576,9 +585,8 @@ namespace GalleryBusiness
         /// Create a new instance of an Artist.
         /// </summary>
         /// <param name="inName">The name of the Artist.</param>
-        /// <param name="inID">The unique ID of the Artist.</param>
-        public Artist(string inName, int inID)
-            : this(inName, new List<Artwork>(), inID)
+        public Artist(string inName)
+            : this(inName, new List<Artwork>())
         { }
 
         /// <summary>
@@ -598,20 +606,18 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// The unique ID of the Artist.
-        /// </summary>
-        public int ID
-        {
-            get { return mID; }
-        }
-
-        /// <summary>
         /// Add an Artwork to the Artist's list of Artwork.
         /// </summary>
         /// <param name="pArtwork">Reference to the artwork to be added.</param>
         public void AddArtwork(Artwork pArtwork)
         {
             mStock.Add(pArtwork);
+        }
+
+        public int GetArtworkID(Artwork pArtwork)
+        {
+            // TODO: change the stock list to a dictionary.
+            throw new Exception("You silly programmer, you forgot to make this function work.");
         }
 
         /// <summary>
@@ -658,7 +664,6 @@ namespace GalleryBusiness
         public void Save(System.IO.TextWriter pTextOut)
         {
             pTextOut.WriteLine(mName);
-            pTextOut.WriteLine(mID);
             // Also save the amount of stock items the artist has.
             pTextOut.WriteLine(mStock.Count);
             foreach (Artwork artwork in mStock)
@@ -699,15 +704,19 @@ namespace GalleryBusiness
         /// <returns>Returns a fully loaded Artist class.</returns>
         public static Artist Load(System.IO.TextReader pTextIn)
         {
+            Artist newArtist;
+
             string loadedName = pTextIn.ReadLine();
-            int loadedID = int.Parse(pTextIn.ReadLine());
             int loadedStockCount = int.Parse(pTextIn.ReadLine());
             List<Artwork> loadedStock = new List<Artwork>();
+            newArtist = new Artist(loadedName, loadedStock);
+
             for (int stockItem = 0; stockItem < loadedStockCount; stockItem++)
             {
-                loadedStock.Add(Artwork.Load(pTextIn));
+                loadedStock.Add(Artwork.Load(pTextIn, newArtist));
             }
-            return new Artist(loadedName, loadedStock, loadedID);
+
+            return newArtist;
         }
 
         /// <summary>
@@ -744,7 +753,7 @@ namespace GalleryBusiness
         /// <returns>Returns a string of all the data members of the Artist.</returns>
         public override string ToString()
         {
-            return "Artist name: " + mName + ", Number of stock items: " + mStock.Count + ", Artist ID: " + mID;
+            return "Artist name: " + mName + ", Number of stock items: " + mStock.Count;
         }
     }
 }

@@ -22,35 +22,59 @@ namespace GalleryX
     /// </summary>
     public partial class MainWindow : Window
     {
+#if DEBUG
         private void Test()
         {
-            Artist artist = new Artist("Rob Miles", 32);
-            Artwork artwork1, artwork2, artwork3;
-            artist.AddArtwork(
+            Artist artist1 = new Artist("Rob Miles");
+            Artist artist2 = new Artist("Kevin Elner");
+            Artwork testArtwork;
+            artist2.AddArtwork(
+                testArtwork = new Artwork(
+                    "Just another Artwork",
+                    12.99m,
+                    DateTime.Now,
+                    Artwork.ArtworkType.Sculpture,
+                    Artwork.ArtworkState.Sold,
+                    artist2)
+                );
+            Artwork artwork1, artwork2, artwork3, artwork4;
+            artist1.AddArtwork(
                 artwork1 = new Artwork(
                     "Hay",
                     319.99m,
                     DateTime.Now,
                     Artwork.ArtworkType.Painting,
-                    Artwork.ArtworkState.InGallery)
+                    Artwork.ArtworkState.InGallery,
+                    artist1)
                     );
-            artist.AddArtwork(
+            artist1.AddArtwork(
                 artwork2 = new Artwork(
                     "Way",
                     259.99m,
                     DateTime.Now,
                     Artwork.ArtworkType.Sculpture,
-                    Artwork.ArtworkState.InGallery)
+                    Artwork.ArtworkState.InGallery,
+                    artist1)
                     );
-            artist.AddArtwork(
+            artist1.AddArtwork(
                 artwork3 = new Artwork(
                     "Nay",
                     169.99m,
                     DateTime.Now,
                     Artwork.ArtworkType.Sculpture,
-                    Artwork.ArtworkState.AwaitingGalleryEntry)
+                    Artwork.ArtworkState.AwaitingGalleryEntry,
+                    artist1)
                 );
-            if (artwork3.Equals(artwork3))
+            artist1.AddArtwork(
+                artwork4 = new Artwork(
+                    "The Ten Commandments",
+                    1000000,
+                    DateTime.Now,
+                    Artwork.ArtworkType.Sculpture,
+                    Artwork.ArtworkState.AwaitingGalleryEntry,
+                    artist1)
+                );
+            if (artwork4.Equals(testArtwork))
             {
                 Console.WriteLine("Equal");
             }
@@ -58,15 +82,25 @@ namespace GalleryX
             {
                 Console.WriteLine("Not Equal");
             }
-            artist.Save("test_save.txt");
+            artist1.Save("test_save.txt");
+            artist2.Save("test_save2.txt");
         }
+#endif
 
         public MainWindow()
         {
             InitializeComponent();
             string thisGalleryName = "GalleryX";
             Title = thisGalleryName;
-            Test();
+            //Test();
+            Artist loadedArtist = Artist.Load("test_save.txt");
+            Console.WriteLine(loadedArtist);
+            loadedArtist = Artist.Load("test_save2.txt");
+            Console.WriteLine(loadedArtist);
+            foreach (Artwork artwork in loadedArtist.StockList)
+            {
+                Console.WriteLine(artwork.ID);
+            }
         }
     }
 }
