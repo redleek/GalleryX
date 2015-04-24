@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalleryBusiness;
-using System.Collections.ObjectModel;
 
 namespace GalleryX
 {
@@ -22,7 +21,7 @@ namespace GalleryX
     /// </summary>
     public partial class MainWindow : Window
     {
-#if DEBUG
+        /*
         private void Test()
         {
             Artist artist1 = new Artist("Rob Miles");
@@ -85,22 +84,63 @@ namespace GalleryX
             artist1.Save("test_save.txt");
             artist2.Save("test_save2.txt");
         }
-#endif
+        */
 
         public MainWindow()
         {
             InitializeComponent();
             string thisGalleryName = "GalleryX";
             Title = thisGalleryName;
+            Gallery a = new Gallery(thisGalleryName);
+            Artist b = new Artist("Rob Miles", a);
+            Artwork c = new Artwork(
+                "Mona Lisa",
+                12000.00m,
+                DateTime.Now,
+                Artwork.ArtworkType.Painting,
+                Artwork.ArtworkState.InGallery,
+                b
+                );
+            Artwork d = new Artwork(
+                "Wall poster of the Mona Lisa",
+                13.99m,
+                DateTime.Now,
+                Artwork.ArtworkType.Sculpture,
+                Artwork.ArtworkState.InGallery,
+                b
+                );
+            c.ReturnToArtist();
+            c.AddToGallery(DateTime.Now);
+            b.AddArtwork(10, c);
+            b.AddArtwork(11, d);
+            List<Artwork> query = b.FindArtwork("mona lisa");
+            foreach (Artwork artwork in query)
+            {
+                Console.WriteLine(artwork);
+            }
+            b.XMLSave("test-xml.xml");
+            Artist newB = new Artist("Rob Miles", a);
+            if (newB.Equals(b))
+            {
+                Console.WriteLine("Equal");
+            }
+            else
+            {
+                Console.WriteLine("Not Equal");
+            }
             //Test();
+            /*
             Artist loadedArtist = Artist.Load("test_save.txt");
             Console.WriteLine(loadedArtist);
             loadedArtist = Artist.Load("test_save2.txt");
             Console.WriteLine(loadedArtist);
+            /*
             foreach (Artwork artwork in loadedArtist.StockList)
             {
                 Console.WriteLine(artwork.ID);
             }
+             * */
+            //Console.WriteLine(loadedArtist.GetHashCode());
         }
     }
 }

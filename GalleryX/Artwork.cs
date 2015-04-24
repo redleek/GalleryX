@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace GalleryBusiness
 {
@@ -94,7 +95,7 @@ namespace GalleryBusiness
         /// <summary>
         /// Limits the amount of characters allowed in a description.
         /// </summary>
-        public const int MAX_DESCRIPTION_LENGTH = 140;
+        public const int MAX_DESCRIPTION_CHARS = 140;
 
         /// <summary>
         /// Stores the type of the Artwork.
@@ -314,12 +315,12 @@ namespace GalleryBusiness
             pNewDescription = pNewDescription.Trim();
             if (pNewDescription != "")
             {
-                if (!(pNewDescription.Length > 150))
+                if (!(pNewDescription.Length > MAX_DESCRIPTION_CHARS))
                 {
                     mDescription = pNewDescription;
                     return true;
                 }
-                throw new ArtworkExceptionBadDescription("Description length is too long by " + (pNewDescription.Length - MAX_DESCRIPTION_LENGTH) + "characters.");
+                throw new ArtworkExceptionBadDescription("Description length is too long by " + (pNewDescription.Length - MAX_DESCRIPTION_CHARS) + "characters.");
             }
             return false;
         }
@@ -401,6 +402,33 @@ namespace GalleryBusiness
             }
             pTextOut.WriteLine(mType);
             pTextOut.WriteLine(mState);
+        }
+
+        /// <summary>
+        /// Write Artwork information to an XML file stream.
+        /// </summary>
+        /// <param name="pXMLOut">XML stream to write to.</param>
+        public void XMLSave(XmlTextWriter pXMLOut)
+        {
+            pXMLOut.WriteStartElement("Artwork");
+            pXMLOut.WriteAttributeString("ID", ID.ToString());
+            pXMLOut.WriteElementString("Description", mDescription);
+            pXMLOut.WriteElementString("Price", mPrice.ToString());
+            // Insert display dates here.
+            if (mDisplayDates.Count > 0)
+            {
+                pXMLOut.WriteStartElement("DisplayDates");
+                foreach (DateTime DisplayDate in mDisplayDates)
+                {
+                    pXMLOut.WriteStartElement("DisplayDate");
+                    pXMLOut.WriteString(DisplayDate.ToString());
+                    pXMLOut.WriteEndElement();
+                }
+                pXMLOut.WriteEndElement();
+            }
+            pXMLOut.WriteElementString("Type", mType.ToString());
+            pXMLOut.WriteElementString("State", mState.ToString());
+            pXMLOut.WriteEndElement();
         }
 
 #if DEBUG
@@ -499,16 +527,16 @@ namespace GalleryBusiness
             string InGalleryDisplayDate = "";
             if (mState == ArtworkState.InGallery)
             {
-                InGalleryDisplayDate = ", DisplayDate: " + MostRecentDisplayDate;
+                InGalleryDisplayDate = ", Display Date: " + MostRecentDisplayDate;
             }
-            return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
+            return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState + ", ID: " + ID;
         }
 
         /// <summary>
-        /// Checks to see if the passed object has the same content as the current one.
+        /// Checks to see if the passed Artwork has the same content as the current one.
         /// </summary>
-        /// <param name="obj">The object to check by comparison.</param>
-        /// <returns>Whether or not the objects have equal content.</returns>
+        /// <param name="obj">The Artwork to check by comparison.</param>
+        /// <returns>Whether or not the Artworks have equal content.</returns>
         public override bool Equals(object obj)
         {
             Artwork comparison = (Artwork)obj;
@@ -518,242 +546,12 @@ namespace GalleryBusiness
             bool DisplayDates = (mDisplayDates == comparison.mDisplayDates);
             bool Type = (mType == comparison.mType);
             bool State = (mState == comparison.mState);
-            bool Owner = (mOwner == comparison.Owner);
 
-            if (Description && Price && DisplayDates && Type && State && Owner)
+            if (Description && Price && DisplayDates && Type && State)
             {
                 return true;
             }
             return false;
-        }
-    }
-
-    /// <summary>
-    /// An Artist who sells Artwork in a gallery.
-    /// </summary>
-    /*
-    class Artist
-    {
-      private Dictionary<int, Artwork> mStock = new Dictionary<int, Artwork>();
-      private int mStockID = 1;
-
-      public Artist()
-      { }
-
-      public int FindArtworkID(Artwork pArtworkRef)
-      {
-        foreach (KeyValuePair<int, Artwork> kvp in mStock)
-      {
-        if (kvp.Value == pArtworkRef)
-          {
-            return kvp.Key;
-          }
-      }
-        return 0;
-      }
-
-      public void AddArtwork(Artwork pNewArtwork)
-      {
-        mStock.Add(mStockID, pNewArtwork);
-        mStockID++;
-      }
-    }
-    */
-
-    class Artist
-    {
-        /// <summary>
-        /// The maximum number of Artworks an Artist can have in a gallery.
-        /// </summary>
-        public const int MAX_ARTWORKS = 5;
-
-        private string mName;
-        private List<Artwork> mStock;
-
-        /// <summary>
-        /// Create a new instance of an Artist loaded from file.
-        /// </summary>
-        /// <param name="inName"></param>
-        /// <param name="inStock"></param>
-        private Artist(string inName, List<Artwork> inStock)
-        {
-            mName = inName;
-            mStock = inStock;
-        }
-
-        /// <summary>
-        /// Create a new instance of an Artist.
-        /// </summary>
-        /// <param name="inName">The name of the Artist.</param>
-        public Artist(string inName)
-            : this(inName, new List<Artwork>())
-        { }
-
-        /// <summary>
-        /// The name of the artist.
-        /// </summary>
-        public string Name
-        {
-            get { return mName; }
-        }
-
-        /// <summary>
-        /// The list of stock that the Artist has in the gallery.
-        /// </summary>
-        public List<Artwork> StockList
-        {
-            get { return mStock; }
-        }
-
-        /// <summary>
-        /// Add an Artwork to the Artist's list of Artwork.
-        /// </summary>
-        /// <param name="pArtwork">Reference to the artwork to be added.</param>
-        public void AddArtwork(Artwork pArtwork)
-        {
-            mStock.Add(pArtwork);
-        }
-
-        public int GetArtworkID(Artwork pArtwork)
-        {
-            // TODO: change the stock list to a dictionary.
-            throw new Exception("You silly programmer, you forgot to make this function work.");
-        }
-
-        /// <summary>
-        /// Find an Artwork in the list of the Artist's Artowrks.
-        /// </summary>
-        /// <param name="pID">The ID of the Artwork to find.</param>
-        /// <returns>Returns the reference to the Artwork.</returns>
-        /*
-        public Artwork FindArtwork(int pID)
-        {
-          foreach (Artwork artwork in mStock)
-        {
-          if (artwork.ID == pID)
-            {
-              return artwork;
-            }
-        }
-          return null;
-        }
-        */
-
-        /// <summary>
-        /// Remove a particular Artwork 
-        /// </summary>
-        /// <param name="pID">The ID of the Artwork to remove.</param>
-        /*
-        public bool RemoveArtwork(int pID)
-        {
-          Artwork artwork = FindArtwork(pID);
-          if (artwork == null)
-        {
-          return false;
-        }
-          mStock.Remove(artwork);
-          return true;
-        }
-        */
-
-        /// <summary>
-        /// Write Artist information to a TextWriter stream.
-        /// </summary>
-        /// <param name="pTextOut">Text stream to write to.</param>
-        /// <returns>Whether or not the file write succeeded or not.</returns>
-        public void Save(System.IO.TextWriter pTextOut)
-        {
-            pTextOut.WriteLine(mName);
-            // Also save the amount of stock items the artist has.
-            pTextOut.WriteLine(mStock.Count);
-            foreach (Artwork artwork in mStock)
-            {
-                artwork.Save(pTextOut);
-            }
-        }
-
-        /// <summary>
-        /// Write Artist information to a file.
-        /// </summary>
-        /// <param name="pFileName">File to write to.</param>
-        public void Save(string pFileName)
-        {
-            System.IO.TextWriter TextOut = null;
-            try
-            {
-                TextOut = new System.IO.StreamWriter(pFileName);
-                Save(TextOut);
-            }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (TextOut != null)
-                {
-                    TextOut.Close();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Load Artist information from a TextReader stream.
-        /// </summary>
-        /// <param name="pTextIn">Text stream to load from.</param>
-        /// <returns>Returns a fully loaded Artist class.</returns>
-        public static Artist Load(System.IO.TextReader pTextIn)
-        {
-            Artist newArtist;
-
-            string loadedName = pTextIn.ReadLine();
-            int loadedStockCount = int.Parse(pTextIn.ReadLine());
-            List<Artwork> loadedStock = new List<Artwork>();
-            newArtist = new Artist(loadedName, loadedStock);
-
-            for (int stockItem = 0; stockItem < loadedStockCount; stockItem++)
-            {
-                loadedStock.Add(Artwork.Load(pTextIn, newArtist));
-            }
-
-            return newArtist;
-        }
-
-        /// <summary>
-        /// Load Artist information form a file.
-        /// </summary>
-        /// <param name="pFileName">File to load from.</param>
-        /// <returns>Returns a fully loaded Artist class.</returns>
-        public static Artist Load(string pFileName)
-        {
-            Artist outArtist;
-            System.IO.TextReader TextIn = null;
-            try
-            {
-                TextIn = new System.IO.StreamReader(pFileName);
-                outArtist = Load(TextIn);
-            }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (TextIn != null)
-                {
-                    TextIn.Close();
-                }
-            }
-            return outArtist;
-        }
-
-        /// <summary>
-        /// Get a diagnostic of the Artist to check it's validity when loaded from a file.
-        /// </summary>
-        /// <returns>Returns a string of all the data members of the Artist.</returns>
-        public override string ToString()
-        {
-            return "Artist name: " + mName + ", Number of stock items: " + mStock.Count;
         }
     }
 }
