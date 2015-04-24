@@ -89,14 +89,6 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// The stock that the Artist owns.
-        /// </summary>
-        public Dictionary<int, Artwork> Stock
-        {
-            get { return mStock; }
-        }
-
-        /// <summary>
         /// The ID of the artist in the Gallery.
         /// </summary>
         public int ID
@@ -139,7 +131,7 @@ namespace GalleryBusiness
         public List<Artwork> FindArtwork(string pDescription)
         {
             pDescription = pDescription.Trim();
-            if (pDescription.Length < 0 || pDescription.Length <= Artwork.MAX_DESCRIPTION_CHARS)
+            if (pDescription.Length > 0 && pDescription.Length <= Artwork.MAX_DESCRIPTION_CHARS)
             {
                 List<Artwork> FoundArtworks = new List<Artwork>();
                 foreach (Artwork artwork in mStock.Values)
@@ -305,9 +297,8 @@ namespace GalleryBusiness
             Artist comparison = (Artist)obj;
 
             bool Name = (mName == comparison.Name);
-            bool Stock = (mStock == comparison.Stock);
 
-            if (Name && Stock)
+            if (Name)
             {
                 return true;
             }

@@ -206,17 +206,9 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Gets the list of display dates of the Artwork.
-        /// </summary>
-        public List<DateTime> DisplayDates
-        {
-            get { return mDisplayDates; }
-        }
-
-        /// <summary>
         /// Gets the most recent display date of the Artwork.
         /// </summary>
-        public DateTime MostRecentDisplayDate
+        private DateTime MostRecentDisplayDate
         {
             get
             {
@@ -225,6 +217,17 @@ namespace GalleryBusiness
                     throw new ArtworkException("The Artwork has not yet been placed in the Gallery to have a Display Date.");
                 }
                 return mDisplayDates.Last();
+            }
+        }
+
+        /// <summary>
+        /// Get the string version of the most recent display date of the Artwork.
+        /// </summary>
+        public string MostRecentDisplayDateString
+        {
+            get
+            {
+                return MostRecentDisplayDate.ToString();
             }
         }
 
@@ -527,7 +530,7 @@ namespace GalleryBusiness
             string InGalleryDisplayDate = "";
             if (mState == ArtworkState.InGallery)
             {
-                InGalleryDisplayDate = ", Display Date: " + MostRecentDisplayDate;
+                InGalleryDisplayDate = ", Display Date: " + MostRecentDisplayDateString;
             }
             return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState + ", ID: " + ID;
         }
