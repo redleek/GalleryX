@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="Artist.cs" />
     <Compile Include="Artwork.cs" />
+    <Compile Include="Customer.cs" />
     <Compile Include="Gallery.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

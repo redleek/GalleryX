@@ -45,12 +45,12 @@ namespace GalleryBusiness
         /// <summary>
         /// Maximum number of Artworks owned by an Artist allowed to be in the Gallery at once.
         /// </summary>
-        const int MAX_ARTWORKS_IN_GALLERY = 5;
+        public const int MAX_ARTWORKS_IN_GALLERY = 5;
 
         /// <summary>
         /// Maximum number of characters allowed in a name.
         /// </summary>
-        const int MAX_NAME_CHARS = 20;
+        public const int MAX_NAME_CHARS = 20;
 
         private string mName;
         private Dictionary<int, Artwork> mStock;
@@ -97,13 +97,40 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// The amount of Artist's Artworks currently in the Gallery.
+        /// </summary>
+        public int ArtworksInGalleryCount
+        {
+            get
+            {
+                int inGalleryCount = 0;
+                foreach (Artwork artwork in mStock.Values)
+                {
+                    if (artwork.State == Artwork.ArtworkState.InGallery)
+                    {
+                        inGalleryCount++;
+                    }
+                }
+                return inGalleryCount;
+            }
+        }
+
+        /// <summary>
         /// Add a new Artwork to the Artist.
         /// </summary>
         /// <param name="pNewArtwork">Reference to the new Artwork.</param>
-        /// <param name="pNewID">Unique ID for the Artwork.</param>
-        public void AddArtwork(int pNewID, Artwork pNewArtwork)
+        public void AddArtwork(Artwork pNewArtwork)
         {
-            mStock.Add(pNewID, pNewArtwork);
+            if (ArtworksInGalleryCount != 5 ||
+                pNewArtwork.State != Artwork.ArtworkState.InGallery)
+            {
+                mStock.Add(mSeller.GetNewArtworkID(), pNewArtwork);
+            }
+            else
+            {
+                throw new ArtistException("Artist has already reached maximum allowance of Artworks in Gallery: "
+                    + Artist.MAX_ARTWORKS_IN_GALLERY);;
+            }
         }
 
         /// <summary>
@@ -113,21 +140,18 @@ namespace GalleryBusiness
         /// <returns>Returns a reference to the Artwork found. Null if not found.</returns>
         public Artwork FindArtwork(int pID)
         {
-            foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
+            if (mStock.ContainsKey(pID))
             {
-                if (KVPartwork.Key == pID)
-                {
-                    return KVPartwork.Value;
-                }
+                return mStock[pID];
             }
             return null;
         }
 
         /// <summary>
-        /// Find Artworks owned by an Artist by a description
+        /// Find Artworks owned by an Artist by a description.
         /// </summary>
         /// <param name="pDescription">Description to search for.</param>
-        /// <returns>Returns a list of found Artworks or null if string is over max description characters or 0.</returns>
+        /// <returns>Returns a list of found Artworks. Throws exception if string is invalid.</returns>
         public List<Artwork> FindArtwork(string pDescription)
         {
             pDescription = pDescription.Trim();
@@ -144,7 +168,7 @@ namespace GalleryBusiness
                 }
                 return FoundArtworks;
             }
-            return null;
+            throw new ArtworkException("Entered string contains too many characters, limit: " + Artwork.MAX_DESCRIPTION_CHARS);
         }
 
         /// <summary>
@@ -171,12 +195,12 @@ namespace GalleryBusiness
         /// Retrieve the unique ID of the Artwork.
         /// </summary>
         /// <param name="pArtwork">Artwork to look for.</param>
-        /// <returns>Returns the ID of the Artwork.</returns>
+        /// <returns>Returns the ID of the Artwork. Returns -1 if not found.</returns>
         public int GetArtworkID(Artwork pArtwork)
         {
             foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
             {
-                if (KVPartwork.Value.Equals(pArtwork))
+                if (KVPartwork.Value == pArtwork)
                 {
                     return KVPartwork.Key;
                 }
@@ -185,64 +209,51 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Checks if the Artist contains any duplicate Artworks.
+        /// Checks if an Artwork is already owned by an Artist.
         /// </summary>
-        /// <returns>Returns a reference to a list of found duplicate Artworks.</returns>
-        public List<Artwork> CheckDuplicates()
+        /// <param name="pArtwork">Reference to the Artwork to check.</param>
+        /// <returns>Returns true if a duplicate has been found.</returns>
+        public bool CheckDuplicates(Artwork pArtwork)
         {
-            List<Artwork> ArtworkDuplicates = new List<Artwork>();
             foreach (Artwork artwork in mStock.Values)
             {
-                foreach (Artwork artworkCheck in mStock.Values)
+                if (artwork.Equals(pArtwork))
                 {
-                    if (artwork.Equals(artworkCheck) && !ArtworkDuplicates.Contains(artwork))
-                    {
-                        ArtworkDuplicates.Add(artwork);
-                    }
+                    return true;
                 }
             }
-            return ArtworkDuplicates;
-        }
-
-        public void XMLSave(XmlTextWriter pXMLOut)
-        {
-            pXMLOut.WriteStartDocument();
-            pXMLOut.WriteStartElement("Artist");
-            pXMLOut.WriteAttributeString("Name", mName);
-            pXMLOut.WriteAttributeString("ID", "need to make ID property");
-            foreach (Artwork artwork in mStock.Values)
-            {
-                artwork.XMLSave(pXMLOut);
-            }
-            pXMLOut.WriteEndElement();
-            pXMLOut.WriteEndDocument();
+            return false;
         }
 
         /// <summary>
-        /// Calculates the MD5 checksum for the saved file.
+        /// Writes Artist information to an Xml file stream.
         /// </summary>
-        /// <param name="pFilename">File name of the saved file.</param>
-        /// <returns>Returns byte array of the checksum.</returns>
-        public byte[] GetMD5(string pFilename)
+        /// <param name="pXmlOut">Xml stream to write to.</param>
+        public void XmlSave(XmlTextWriter pXmlOut)
         {
-            using (var MD5 = System.Security.Cryptography.MD5.Create())
+            pXmlOut.WriteStartElement("Artist");
+            pXmlOut.WriteAttributeString("ID", ID.ToString());
+            pXmlOut.WriteElementString("Name", mName);
+            foreach (Artwork artwork in mStock.Values)
             {
-                using (var Stream = System.IO.File.OpenRead(pFilename))
-                {
-                    return MD5.ComputeHash(Stream);
-                }
+                artwork.XmlSave(pXmlOut);
             }
+            pXmlOut.WriteEndElement();
         }
 
-        public void XMLSave(string pFilename)
+#if DEBUG
+        /// <summary>
+        /// Writes Artist information to a new file via Xml.
+        /// </summary>
+        /// <param name="pFilename">Name of file to write to.</param>
+        public void XmlSave(string pFilename)
         {
-            XmlTextWriter XMLOut = null;
-            System.IO.TextWriter MD5Out = null;
+            XmlTextWriter XmlOut = null;
             try
             {
-                XMLOut = new XmlTextWriter(pFilename, Encoding.ASCII);
-                XMLOut.Formatting = Formatting.Indented;
-                XMLSave(XMLOut);
+                XmlOut = new XmlTextWriter(pFilename, Encoding.ASCII);
+                XmlOut.Formatting = Formatting.Indented;
+                XmlSave(XmlOut);
             }
             catch (Exception E)
             {
@@ -250,33 +261,13 @@ namespace GalleryBusiness
             }
             finally
             {
-                if (XMLOut != null)
+                if (XmlOut != null)
                 {
-                    XMLOut.Close();
-                }
-            }
-            try
-            {
-                string MD5Filename = pFilename + "_md5.txt";
-                byte[] MD5 = GetMD5(pFilename);
-                MD5Out = new System.IO.StreamWriter(MD5Filename);
-                foreach (byte b in MD5)
-                {
-                    MD5Out.WriteLine(b);
-                }
-            }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (MD5Out != null)
-                {
-                    MD5Out.Close();
+                    XmlOut.Close();
                 }
             }
         }
+#endif
 
         /// <summary>
         /// String format of the Artist.

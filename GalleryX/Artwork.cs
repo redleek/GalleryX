@@ -389,6 +389,21 @@ namespace GalleryBusiness
             }
         }
 
+        public void SendToWaitingList()
+        {
+            switch (mState)
+            {
+                case ArtworkState.Sold:
+                    throw new ArtworkExceptionBadStateTransfer("Artwork has been sold to a customer already.");
+                case ArtworkState.AwaitingGalleryEntry:
+                    throw new ArtworkExceptionBadStateTransfer("Artwork is already awaiting Gallery entry.");
+                case ArtworkState.ReturnedToArtist:
+                case ArtworkState.InGallery:
+                    mState = ArtworkState.AwaitingGalleryEntry;
+                    break;
+            }
+        }
+
         /// <summary>
         /// Write Artwork information to a file stream.
         /// </summary>
@@ -408,30 +423,30 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Write Artwork information to an XML file stream.
+        /// Write Artwork information to an Xml file stream.
         /// </summary>
-        /// <param name="pXMLOut">XML stream to write to.</param>
-        public void XMLSave(XmlTextWriter pXMLOut)
+        /// <param name="pXmlOut">XML stream to write to.</param>
+        public void XmlSave(XmlTextWriter pXmlOut)
         {
-            pXMLOut.WriteStartElement("Artwork");
-            pXMLOut.WriteAttributeString("ID", ID.ToString());
-            pXMLOut.WriteElementString("Description", mDescription);
-            pXMLOut.WriteElementString("Price", mPrice.ToString());
+            pXmlOut.WriteStartElement("Artwork");
+            pXmlOut.WriteAttributeString("ID", ID.ToString());
+            pXmlOut.WriteElementString("Description", mDescription);
+            pXmlOut.WriteElementString("Price", mPrice.ToString());
             // Insert display dates here.
             if (mDisplayDates.Count > 0)
             {
-                pXMLOut.WriteStartElement("DisplayDates");
+                pXmlOut.WriteStartElement("DisplayDates");
                 foreach (DateTime DisplayDate in mDisplayDates)
                 {
-                    pXMLOut.WriteStartElement("DisplayDate");
-                    pXMLOut.WriteString(DisplayDate.ToString());
-                    pXMLOut.WriteEndElement();
+                    pXmlOut.WriteStartElement("DisplayDate");
+                    pXmlOut.WriteString(DisplayDate.ToString());
+                    pXmlOut.WriteEndElement();
                 }
-                pXMLOut.WriteEndElement();
+                pXmlOut.WriteEndElement();
             }
-            pXMLOut.WriteElementString("Type", mType.ToString());
-            pXMLOut.WriteElementString("State", mState.ToString());
-            pXMLOut.WriteEndElement();
+            pXmlOut.WriteElementString("Type", mType.ToString());
+            pXmlOut.WriteElementString("State", mState.ToString());
+            pXmlOut.WriteEndElement();
         }
 
 #if DEBUG
