@@ -135,7 +135,6 @@ namespace GalleryBusiness
         private Artwork(string inDescription, decimal inPrice, List<DateTime> inDisplayDates, ArtworkType inType,
                 ArtworkState inState, Artist inOwner)
         {
-            //mDescription = inDescription;
             if (!UpdateDescription(inDescription))
             {
                 throw new ArtworkExceptionBadDescription("Description is blank.");
@@ -255,6 +254,9 @@ namespace GalleryBusiness
             get { return mOwner; }
         }
 
+        /// <summary>
+        /// Gets the unique ID of the Artwork.
+        /// </summary>
         public int ID
         {
             get { return mOwner.GetArtworkID(this); }
@@ -547,7 +549,7 @@ namespace GalleryBusiness
             {
                 InGalleryDisplayDate = ", Display Date: " + MostRecentDisplayDateString;
             }
-            return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState + ", ID: " + ID;
+            return "Description: " + mDescription + ", Price: £" + mPrice + InGalleryDisplayDate + ", Artwork type: " + mType + ", Artwork state: " + mState;
         }
 
         /// <summary>
