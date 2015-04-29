@@ -428,10 +428,11 @@ namespace GalleryBusiness
         /// Write Artwork information to an Xml file stream.
         /// </summary>
         /// <param name="pXmlOut">XML stream to write to.</param>
-        public void XmlSave(XmlTextWriter pXmlOut)
+        /// <param name="pID">ID of the Artwork to write.</param>
+        public void XmlSave(XmlTextWriter pXmlOut, int pID)
         {
             pXmlOut.WriteStartElement("Artwork");
-            pXmlOut.WriteAttributeString("ID", ID.ToString());
+            pXmlOut.WriteAttributeString("ID", pID.ToString());
             pXmlOut.WriteElementString("Description", mDescription);
             pXmlOut.WriteElementString("Price", mPrice.ToString());
             // Insert display dates here.

@@ -121,8 +121,8 @@ namespace GalleryBusiness
         /// <param name="pNewArtwork">Reference to the new Artwork.</param>
         public void AddArtwork(Artwork pNewArtwork)
         {
-            if (ArtworksInGalleryCount != 5 ||
-                pNewArtwork.State != Artwork.ArtworkState.InGallery)
+            if (pNewArtwork.State != Artwork.ArtworkState.InGallery ||
+                ArtworksInGalleryCount != 5)
             {
                 mStock.Add(mSeller.GetNewArtworkID(), pNewArtwork);
             }
@@ -229,45 +229,18 @@ namespace GalleryBusiness
         /// Writes Artist information to an Xml file stream.
         /// </summary>
         /// <param name="pXmlOut">Xml stream to write to.</param>
-        public void XmlSave(XmlTextWriter pXmlOut)
+        /// <param name="pID">ID of the Artist to write.</param>
+        public void XmlSave(XmlTextWriter pXmlOut, int pID)
         {
             pXmlOut.WriteStartElement("Artist");
-            pXmlOut.WriteAttributeString("ID", ID.ToString());
+            pXmlOut.WriteAttributeString("ID", pID.ToString());
             pXmlOut.WriteElementString("Name", mName);
-            foreach (Artwork artwork in mStock.Values)
+            foreach (KeyValuePair<int, Artwork> artwork in mStock)
             {
-                artwork.XmlSave(pXmlOut);
+                artwork.Value.XmlSave(pXmlOut, artwork.Key);
             }
             pXmlOut.WriteEndElement();
         }
-
-#if DEBUG
-        /// <summary>
-        /// Writes Artist information to a new file via Xml.
-        /// </summary>
-        /// <param name="pFilename">Name of file to write to.</param>
-        public void XmlSave(string pFilename)
-        {
-            XmlTextWriter XmlOut = null;
-            try
-            {
-                XmlOut = new XmlTextWriter(pFilename, Encoding.ASCII);
-                XmlOut.Formatting = Formatting.Indented;
-                XmlSave(XmlOut);
-            }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (XmlOut != null)
-                {
-                    XmlOut.Close();
-                }
-            }
-        }
-#endif
 
         /// <summary>
         /// String format of the Artist.

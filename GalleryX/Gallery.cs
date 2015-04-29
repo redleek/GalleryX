@@ -367,9 +367,9 @@ namespace GalleryBusiness
             pXmlOut.WriteElementString("ArtistIDCount", mArtistIDCount.ToString());
             pXmlOut.WriteElementString("OrderIDCount", mOrderIDCount.ToString());
             pXmlOut.WriteElementString("CustomerIDCount", mCustomerIDCount.ToString());
-            foreach (Artist artist in mArtists.Values)
+            foreach (KeyValuePair<int, Artist> artist in mArtists)
             {
-                artist.XmlSave(pXmlOut);
+                artist.Value.XmlSave(pXmlOut, artist.Key);
             }
             pXmlOut.WriteEndElement();
             pXmlOut.WriteEndDocument();
