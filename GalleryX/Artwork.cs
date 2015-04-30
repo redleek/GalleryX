@@ -255,14 +255,6 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Gets the unique ID of the Artwork.
-        /// </summary>
-        public int ID
-        {
-            get { return mOwner.GetArtworkID(this); }
-        }
-
-        /// <summary>
         /// Check if the Artwork's time in the Gallery has expired.
         /// </summary>
         /// <param name="pCurrentDateTime">The time to check against the display date of the Artwork.</param>

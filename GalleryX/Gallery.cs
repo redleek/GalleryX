@@ -97,14 +97,14 @@ namespace GalleryBusiness
         /// Find an Artist by it's ID.
         /// </summary>
         /// <param name="pID">ID of the Artist to searh for.</param>
-        /// <returns>If found, returns a refernece to the Artist.</returns>
-        public Artist FindArtist(int pID)
+        /// <returns>If found, returns the KeyValuePair of the Artist.</returns>
+        public KeyValuePair<int, Artist> FindArtist(int pID)
         {
             if (mArtists.ContainsKey(pID))
             {
-                return mArtists[pID];
+                return new KeyValuePair<int, Artist>(pID, mArtists[pID]);
             }
-            return null;
+            return new KeyValuePair<int, Artist>(-1, null);
         }
 
         /// <summary>
@@ -112,18 +112,18 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pName">Name of the Artist to search for.</param>
         /// <returns>Returns a list of all Artists whose names contain the given string. Throws exception if string is invalid.</returns>
-        public List<Artist> FindArtist(string pName)
+        public List<KeyValuePair<int, Artist>> FindArtist(string pName)
         {
             pName = pName.Trim();
             if (pName.Length > 0 && pName.Length <= Artist.MAX_NAME_CHARS)
             {
-                List<Artist> FoundArtists = new List<Artist>();
-                foreach (Artist artist in mArtists.Values)
+                List<KeyValuePair<int, Artist>> FoundArtists = new List<KeyValuePair<int, Artist>>();
+                foreach (KeyValuePair<int, Artist> KVPartist in mArtists)
                 {
-                    if (artist.Name.Contains(pName) ||
-                        artist.Name.ToLower().Contains(pName.ToLower()))
+                    if (KVPartist.Value.Name.Contains(pName) ||
+                        KVPartist.Value.Name.ToLower().Contains(pName.ToLower()))
                     {
-                        FoundArtists.Add(artist);
+                        FoundArtists.Add(KVPartist);
                     }
                 }
                 return FoundArtists;
@@ -144,14 +144,14 @@ namespace GalleryBusiness
                 throw new GalleryException("Gallery capacity already reached: " + GALLERY_CAPACITY);
             }
 
-            foreach (Artist artistDuplicateCheck in mArtists.Values)
+            foreach (KeyValuePair<int, Artist> KVPartistDuplicateCheck in mArtists)
             {
-                if (!artistDuplicateCheck.CheckDuplicates(pNewArtwork))
+                if (!KVPartistDuplicateCheck.Value.CheckDuplicates(pNewArtwork))
                 {
-                    Artist artist = FindArtist(pArtistID);
+                    Artist artist = FindArtist(pArtistID).Value;
                     artist.AddArtwork(pNewArtwork);
                 }
-                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork:" + artistDuplicateCheck);
+                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork:" + KVPartistDuplicateCheck);
             }
         }
 
@@ -170,7 +170,7 @@ namespace GalleryBusiness
                     return KVPartwork;
                 }
             }
-            return new KeyValuePair<int,Artwork>(-1, null);
+            return new KeyValuePair<int, Artwork>(-1, null);
         }
 
         /// <summary>
@@ -247,19 +247,38 @@ namespace GalleryBusiness
         /// Find a Customer by it's ID.
         /// </summary>
         /// <param name="pID">ID of the Customer to search for.</param>
-        /// <returns>Returns a reference to the found Customer. Returns null if not found.</returns>
-        public Customer FindCustomer(int pID)
+        /// <returns>Returns the KeyValuePair of the found Customer.</returns>
+        public KeyValuePair<int, Customer> FindCustomer(int pID)
         {
             if (mCustomers.ContainsKey(pID))
             {
-                return mCustomers[pID];
+                return new KeyValuePair<int, Customer>(pID, mCustomers[pID]);
             }
-            return null;
+            return new KeyValuePair<int, Customer>(-1, null);
         }
 
-        public List<Customer> FindCustomer(string pName)
+        /// <summary>
+        /// Find 
+        /// </summary>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        public List<KeyValuePair<int, Customer>> FindCustomer(string pName)
         {
-            throw new NotImplementedException();
+            pName = pName.Trim();
+            if (pName.Length > 0 && pName.Length <= Customer.MAX_NAME_CHARS)
+            {
+                List<KeyValuePair<int, Customer>> FoundCustomers = new List<KeyValuePair<int, Customer>>();
+                foreach (KeyValuePair<int, Customer> KVPcustomer in mCustomers)
+                {
+                    if (KVPcustomer.Value.Name.Contains(pName) ||
+                        KVPcustomer.Value.Name.ToLower().Contains(pName.ToLower()))
+                    {
+                        FoundCustomers.Add(KVPcustomer);
+                    }
+                }
+                return FoundCustomers;
+            }
+            throw new CustomerException("Entered string contains characters, limit: " + Customer.MAX_NAME_CHARS);
         }
 
         /// <summary>
@@ -278,37 +297,6 @@ namespace GalleryBusiness
         public int GetNewOrderID()
         {
             return mOrderIDCount++;
-        }
-
-        /// <summary>
-        /// Retrieve the unique ID of the Artist.
-        /// </summary>
-        /// <param name="pArtist">Artist to look for.</param>
-        /// <returns>Returns the ID of the Artist. Throws ArtistException if not found in Gallery.</returns>
-        public int GetArtistID(Artist pArtist)
-        {
-            // START_ID must be 1 for this code.
-            /*
-            int ArtistID = mArtists.FirstOrDefault(artist => artist.Value.Equals(pArtist)).Key;
-            if (!(ArtistID == 0))
-            {
-                return ArtistID;
-            }
-            throw new ArtistException("Artist not found in the Gallery.");
-            */
-            foreach (KeyValuePair<int, Artist> KVPartist in mArtists)
-            {
-                if (KVPartist.Value.Equals(pArtist))
-                {
-                    return KVPartist.Key;
-                }
-            }
-            return -1;
-        }
-
-        public int GetCustomerID(Customer pCustomer)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

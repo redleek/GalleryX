@@ -7,6 +7,16 @@ using System.Xml;
 
 namespace GalleryBusiness
 {
+    /// <summary>
+    /// Basic Exception class for Customers.
+    /// </summary>
+    class CustomerException : System.Exception
+    {
+        public CustomerException(string message)
+            : base(message)
+        { }
+    }
+
     class Customer
     {
         /// <summary>
@@ -110,9 +120,9 @@ namespace GalleryBusiness
         {
             if (mOrders.ContainsKey(pID))
             {
-                return new KeyValuePair<int,Order>(pID, mOrders[pID]);
+                return new KeyValuePair<int, Order>(pID, mOrders[pID]);
             }
-            return new KeyValuePair<int,Order>(-1, null);
+            return new KeyValuePair<int, Order>(-1, null);
         }
 
         /// <summary>
@@ -129,7 +139,7 @@ namespace GalleryBusiness
                     return KVPorder;
                 }
             }
-            return new KeyValuePair<int,Order>(-1, null);
+            return new KeyValuePair<int, Order>(-1, null);
         }
     }
 }

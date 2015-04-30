@@ -89,14 +89,6 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// The ID of the artist in the Gallery.
-        /// </summary>
-        public int ID
-        {
-            get { return mSeller.GetArtistID(this); }
-        }
-
-        /// <summary>
         /// The amount of Artist's Artworks currently in the Gallery.
         /// </summary>
         public int ArtworksInGalleryCount
@@ -129,7 +121,7 @@ namespace GalleryBusiness
             else
             {
                 throw new ArtistException("Artist has already reached maximum allowance of Artworks in Gallery: "
-                    + Artist.MAX_ARTWORKS_IN_GALLERY);;
+                    + Artist.MAX_ARTWORKS_IN_GALLERY); ;
             }
         }
 
@@ -144,7 +136,7 @@ namespace GalleryBusiness
             {
                 return new KeyValuePair<int, Artwork>(pID, mStock[pID]);
             }
-            return new KeyValuePair<int,Artwork>(-1, null);
+            return new KeyValuePair<int, Artwork>(-1, null);
         }
 
         /// <summary>
@@ -192,23 +184,6 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Retrieve the unique ID of the Artwork.
-        /// </summary>
-        /// <param name="pArtwork">Artwork to look for.</param>
-        /// <returns>Returns the ID of the Artwork. Returns -1 if not found.</returns>
-        public int GetArtworkID(Artwork pArtwork)
-        {
-            foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
-            {
-                if (KVPartwork.Value == pArtwork)
-                {
-                    return KVPartwork.Key;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
         /// Checks if an Artwork is already owned by an Artist.
         /// </summary>
         /// <param name="pArtwork">Reference to the Artwork to check.</param>
@@ -248,7 +223,7 @@ namespace GalleryBusiness
         /// <returns>Returns a string of all the data members of the Artist.</returns>
         public override string ToString()
         {
-            return "Name: " + mName + ", Number of stock items: " + mStock.Count + ", ID: " + ID;
+            return "Name: " + mName + ", Number of stock items: " + mStock.Count;
         }
 
         /// <summary>
