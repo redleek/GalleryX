@@ -160,17 +160,17 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pID">Unique ID of the artwork to look for.</param>
         /// <returns>Returns a reference to the found Artwork. Returns null if not found.</returns>
-        public Artwork FindArtwork(int pID)
+        public KeyValuePair<int, Artwork> FindArtwork(int pID)
         {
-            Artwork artwork;
+            KeyValuePair<int, Artwork> KVPartwork;
             foreach (Artist artist in mArtists.Values)
             {
-                if ((artwork = artist.FindArtwork(pID)) != null)
+                if ((KVPartwork = artist.FindArtwork(pID)).Key != -1)
                 {
-                    return artwork;
+                    return KVPartwork;
                 }
             }
-            return null;
+            return new KeyValuePair<int,Artwork>(-1, null);
         }
 
         /// <summary>
@@ -178,12 +178,12 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pDescription">Description to search for.</param>
         /// <returns>Returns a list of found Artworks.</returns>
-        public List<Artwork> FindArtwork(string pDescription)
+        public List<KeyValuePair<int, Artwork>> FindArtwork(string pDescription)
         {
-            List<Artwork> FoundArtworks = new List<Artwork>();
+            List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
             foreach (Artist artist in mArtists.Values)
             {
-                List<Artwork> thisArtistFoundArtworks = new List<Artwork>();
+                List<KeyValuePair<int, Artwork>> thisArtistFoundArtworks = new List<KeyValuePair<int, Artwork>>();
                 if ((thisArtistFoundArtworks = artist.FindArtwork(pDescription)).Count
                     != 0)
                 {
@@ -197,12 +197,12 @@ namespace GalleryBusiness
         /// Change the state of an artwork.
         /// </summary>
         /// <param name="pID">ID of the Artwork to change state.</param>
-        /// <param name="pNewState"></param>
-        /// <param name="pAddToGalleryDate"></param>
+        /// <param name="pNewState">New state to change the Artwork to.</param>
+        /// <param name="pAddToGalleryDate">Date the Artwork was added to the Gallery.</param>
         public void ChangeArtworkState(int pID, Artwork.ArtworkState pNewState, DateTime pAddToGalleryDate)
         {
-            Artwork artwork;
-            if ((artwork = FindArtwork(pID)) == null)
+            KeyValuePair<int, Artwork> KVPartwork;
+            if ((KVPartwork = FindArtwork(pID)).Key == -1)
             {
                 throw new ArtworkExceptionDoesNotExist("Artwork not found.");
             }
@@ -212,10 +212,10 @@ namespace GalleryBusiness
                 case Artwork.ArtworkState.InGallery:
                     if (ArtworksInGallery != GALLERY_CAPACITY)
                     {
-                        if (artwork.Owner.ArtworksInGalleryCount
+                        if (KVPartwork.Value.Owner.ArtworksInGalleryCount
                             != Artist.MAX_ARTWORKS_IN_GALLERY)
                         {
-                            artwork.AddToGallery(DateTime.Now);
+                            KVPartwork.Value.AddToGallery(DateTime.Now);
                             return;
                         }
                         throw new ArtistException("Artist has already reached maximum allowance of Artworks in Gallery: "
@@ -223,13 +223,13 @@ namespace GalleryBusiness
                     }
                     throw new GalleryException("The Gallery is already at maximum capacity.");
                 case Artwork.ArtworkState.ReturnedToArtist:
-                    artwork.ReturnToArtist();
+                    KVPartwork.Value.ReturnToArtist();
                     break;
                 case Artwork.ArtworkState.Sold:
-                    artwork.Sell();
+                    KVPartwork.Value.Sell();
                     break;
                 case Artwork.ArtworkState.AwaitingGalleryEntry:
-                    artwork.SendToWaitingList();
+                    KVPartwork.Value.SendToWaitingList();
                     break;
             }
         }

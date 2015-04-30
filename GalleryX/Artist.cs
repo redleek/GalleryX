@@ -137,33 +137,33 @@ namespace GalleryBusiness
         /// Find an Artwork owned by an Artist by it's ID.
         /// </summary>
         /// <param name="pID">ID of the Artwork to find.</param>
-        /// <returns>Returns a reference to the Artwork found. Null if not found.</returns>
-        public Artwork FindArtwork(int pID)
+        /// <returns>Returns a KeyValuePair to the Artwork found and it's ID.</returns>
+        public KeyValuePair<int, Artwork> FindArtwork(int pID)
         {
             if (mStock.ContainsKey(pID))
             {
-                return mStock[pID];
+                return new KeyValuePair<int, Artwork>(pID, mStock[pID]);
             }
-            return null;
+            return new KeyValuePair<int,Artwork>(-1, null);
         }
 
         /// <summary>
         /// Find Artworks owned by an Artist by a description.
         /// </summary>
         /// <param name="pDescription">Description to search for.</param>
-        /// <returns>Returns a list of found Artworks. Throws exception if string is invalid.</returns>
-        public List<Artwork> FindArtwork(string pDescription)
+        /// <returns>Returns a list of found Keys and Artworks. Throws exception if string is invalid.</returns>
+        public List<KeyValuePair<int, Artwork>> FindArtwork(string pDescription)
         {
             pDescription = pDescription.Trim();
             if (pDescription.Length > 0 && pDescription.Length <= Artwork.MAX_DESCRIPTION_CHARS)
             {
-                List<Artwork> FoundArtworks = new List<Artwork>();
-                foreach (Artwork artwork in mStock.Values)
+                List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
+                foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
                 {
-                    if (artwork.Description.Contains(pDescription) ||
-                        artwork.Description.ToLower().Contains(pDescription.ToLower()))
+                    if (KVPartwork.Value.Description.Contains(pDescription) ||
+                        KVPartwork.Value.Description.ToLower().Contains(pDescription.ToLower()))
                     {
-                        FoundArtworks.Add(artwork);
+                        FoundArtworks.Add(KVPartwork);
                     }
                 }
                 return FoundArtworks;

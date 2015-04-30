@@ -83,5 +83,53 @@ namespace GalleryBusiness
             }
             return false;
         }
+
+        /// <summary>
+        /// Name of the Customer.
+        /// </summary>
+        public string Name
+        {
+            get { return mName; }
+        }
+
+        /// <summary>
+        /// Add a new order for the Customer.
+        /// </summary>
+        /// <param name="pNewOrder">Reference to the new order to add.</param>
+        public void AddOrder(Order pNewOrder)
+        {
+            mOrders.Add(mGallery.GetNewOrderID(), pNewOrder);
+        }
+
+        /// <summary>
+        /// Find an Order by it's ID.
+        /// </summary>
+        /// <param name="pID">ID of the order to search for.</param>
+        /// <returns>Returns the KeyValuePair of the found order.</returns>
+        public KeyValuePair<int, Order> FindOrderByID(int pID)
+        {
+            if (mOrders.ContainsKey(pID))
+            {
+                return new KeyValuePair<int,Order>(pID, mOrders[pID]);
+            }
+            return new KeyValuePair<int,Order>(-1, null);
+        }
+
+        /// <summary>
+        /// Find an Order by the ID of the Artwork it includes.
+        /// </summary>
+        /// <param name="pArtworkID">ID of the Artwork in the Order to search for.</param>
+        /// <returns>Returns the KeyValuePair of the found Artwork.</returns>
+        public KeyValuePair<int, Order> FindOrderByArtworkID(int pArtworkID)
+        {
+            foreach (KeyValuePair<int, Order> KVPorder in mOrders)
+            {
+                if (KVPorder.Value.ArtworkID == pArtworkID)
+                {
+                    return KVPorder;
+                }
+            }
+            return new KeyValuePair<int,Order>(-1, null);
+        }
     }
 }

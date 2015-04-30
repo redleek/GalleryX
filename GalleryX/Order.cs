@@ -45,13 +45,6 @@ namespace GalleryBusiness
             get { return mOrderDate.ToString(); }
         }
 
-        /*
-        public int ID
-        {
-            get { return }
-        }
-        */
-
         public void XmlSave(XmlTextWriter pXmlOut)
         {
             pXmlOut.WriteStartElement("Order");
