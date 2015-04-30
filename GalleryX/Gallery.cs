@@ -144,14 +144,15 @@ namespace GalleryBusiness
                 throw new GalleryException("Gallery capacity already reached: " + GALLERY_CAPACITY);
             }
 
-            foreach (KeyValuePair<int, Artist> KVPartistDuplicateCheck in mArtists)
+            foreach (Artist artistDuplicateCheck in mArtists.Values)
             {
-                if (!KVPartistDuplicateCheck.Value.CheckDuplicates(pNewArtwork))
+                if (!artistDuplicateCheck.CheckDuplicates(pNewArtwork))
                 {
                     Artist artist = FindArtist(pArtistID).Value;
                     artist.AddArtwork(pNewArtwork);
+                    return;
                 }
-                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork:" + KVPartistDuplicateCheck);
+                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork:" + artistDuplicateCheck);
             }
         }
 
@@ -258,10 +259,10 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Find 
+        /// Find Customers by name.
         /// </summary>
-        /// <param name="pName"></param>
-        /// <returns></returns>
+        /// <param name="pName">String to search for.</param>
+        /// <returns>Returns a list of KeyValuePairs of any found Customers.</returns>
         public List<KeyValuePair<int, Customer>> FindCustomer(string pName)
         {
             pName = pName.Trim();
@@ -279,6 +280,23 @@ namespace GalleryBusiness
                 return FoundCustomers;
             }
             throw new CustomerException("Entered string contains characters, limit: " + Customer.MAX_NAME_CHARS);
+        }
+
+        /// <summary>
+        /// Add an Order to a Customer.
+        /// </summary>
+        /// <param name="pCustomerID">ID of the Customer to add to.</param>
+        /// <param name="pNewOrder">Reference to the new Order.</param>
+        public void AddOrder(int pCustomerID, Order pNewOrder)
+        {
+            foreach (Customer customerDuplicateCheck in mCustomers.Values)
+            {
+                if (!customerDuplicateCheck.CheckDuplicates(pNewOrder))
+                {
+                    Customer customer = FindCustomer(pCustomerID).Value;
+                    customer.AddOrder(pNewOrder);
+                }
+            }
         }
 
         /// <summary>
@@ -319,6 +337,10 @@ namespace GalleryBusiness
             return ArtistDuplicates;
         }
 
+        /// <summary>
+        /// Checks if the Gallery contains duplicate Customers.
+        /// </summary>
+        /// <returns>Retuns a list of duplicated Customers.</returns>
         public List<Customer> CheckDuplicateCustomers()
         {
             List<Customer> CustomerDuplicates = new List<Customer>();
@@ -326,9 +348,13 @@ namespace GalleryBusiness
             {
                 foreach (Customer customerCheck in mCustomers.Values)
                 {
+                    if (customer.Equals(customerCheck) && !CustomerDuplicates.Contains(customer))
+                    {
+                        CustomerDuplicates.Add(customer);
+                    }
                 }
             }
-            throw new NotImplementedException();
+            return CustomerDuplicates;
         }
 
         /// <summary>

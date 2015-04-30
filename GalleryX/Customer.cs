@@ -141,5 +141,48 @@ namespace GalleryBusiness
             }
             return new KeyValuePair<int, Order>(-1, null);
         }
+
+        /// <summary>
+        /// Check if an order already exists.
+        /// </summary>
+        /// <param name="pOrder"></param>
+        /// <returns>Whether or not it already exists.</returns>
+        public bool CheckDuplicates(Order pOrder)
+        {
+            foreach (Order order in mOrders.Values)
+            {
+                if (order.Equals(pOrder))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the string value of Customer.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return "Name: " + mName + ", Number of Orders: " + mOrders.Count;
+        }
+
+        /// <summary>
+        /// Checks if the passed Customer has Equal content.
+        /// </summary>
+        /// <param name="obj">Object to compare.</param>
+        /// <returns>Whether or not they have the same content.</returns>
+        public override bool Equals(object obj)
+        {
+            Customer comparison = (Customer)obj;
+            bool Name = (mName == comparison.mName);
+
+            if (Name)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
