@@ -121,7 +121,7 @@ namespace GalleryBusiness
             else
             {
                 throw new ArtistException("Artist has already reached maximum allowance of Artworks in Gallery: "
-                    + Artist.MAX_ARTWORKS_IN_GALLERY); ;
+                    + Artist.MAX_ARTWORKS_IN_GALLERY);
             }
         }
 
@@ -187,17 +187,17 @@ namespace GalleryBusiness
         /// Checks if an Artwork is already owned by an Artist.
         /// </summary>
         /// <param name="pArtwork">Reference to the Artwork to check.</param>
-        /// <returns>Returns true if a duplicate has been found.</returns>
-        public bool CheckDuplicates(Artwork pArtwork)
+        /// <returns>Returns the KeyValuePair to the origional Artwork if a duplicate has been found.</returns>
+        public KeyValuePair<int, Artwork> CheckDuplicates(Artwork pArtwork)
         {
-            foreach (Artwork artwork in mStock.Values)
+            foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
             {
-                if (artwork.Equals(pArtwork))
+                if (KVPartwork.Value.Equals(pArtwork))
                 {
-                    return true;
+                    return KVPartwork;
                 }
             }
-            return false;
+            return new KeyValuePair<int, Artwork>(-1, null);
         }
 
         /// <summary>

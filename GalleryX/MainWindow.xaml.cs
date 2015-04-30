@@ -34,21 +34,30 @@ namespace GalleryX
             }
             catch (GalleryException E)
             {
-                //MessageBox.Show(E.Message, "File loading error.");
+                //MessageBox.Show(E.Message, "File loading error");
             }
 
-
+            
             Artist artist;
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 700; i++)
             {
                 gallery.AddArtist(artist = new Artist("Rob Miles", gallery));
-                for (int j = 0; j < 1000; j++)
+                for (int j = 0; j < 30; j++)
                 {
-                    gallery.AddArtwork(0, new Artwork("Mona Lisa", 12.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.AwaitingGalleryEntry, artist));
+                    gallery.AddArtwork(0, new Artwork("Mona Lisa" + j, 12.99m - 0.001m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.AwaitingGalleryEntry, artist));
+                }
+            }
+            Customer customer;
+            for (int i = 0; i < 700; i++)
+            {
+                gallery.AddCustomer(customer = new Customer("Kevin Elner", gallery));
+                for (int j = 0; j < 30; j++)
+                {
+                    customer.AddOrder(new Order(i, DateTime.Now, customer));
                 }
             }
             gallery.XmlSave("test.xml");
-
+            
         }
     }
 }

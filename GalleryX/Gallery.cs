@@ -145,15 +145,16 @@ namespace GalleryBusiness
                 throw new GalleryException("Gallery capacity already reached: " + GALLERY_CAPACITY);
             }
 
+            KeyValuePair<int, Artwork> duplicate;
             foreach (Artist artistDuplicateCheck in mArtists.Values)
             {
-                if (!artistDuplicateCheck.CheckDuplicates(pNewArtwork))
+                if ((duplicate = artistDuplicateCheck.CheckDuplicates(pNewArtwork)).Key == -1)
                 {
                     Artist artist = FindArtist(pArtistID).Value;
                     artist.AddArtwork(pNewArtwork);
                     return;
                 }
-                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork:" + artistDuplicateCheck);
+                throw new ArtistDuplicateArtworksException("Artwork is a duplicate of artwork: " + duplicate);
             }
         }
 
@@ -498,7 +499,7 @@ namespace GalleryBusiness
             int loadedArtworkIDCount = int.Parse(pGalleryElement["ArtworkIDCount"].InnerText);
             int loadedArtistIDCount = int.Parse(pGalleryElement["ArtistIDCount"].InnerText);
             int loadedOrderIDCount = int.Parse(pGalleryElement["OrderIDCount"].InnerText);
-            int loadedCustomerIDCount = int.Parse(pGalleryElement["OrderIDCount"].InnerText);
+            int loadedCustomerIDCount = int.Parse(pGalleryElement["CustomerIDCount"].InnerText);
 
             Dictionary<int, Artist> loadedArtists = new Dictionary<int, Artist>();
             Dictionary<int, Customer> loadedCustomers = new Dictionary<int, Customer>();

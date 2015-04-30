@@ -488,11 +488,10 @@ namespace GalleryBusiness
 
             bool Description = (mDescription == comparison.mDescription);
             bool Price = (mPrice == comparison.mPrice);
-            bool DisplayDates = (mDisplayDates == comparison.mDisplayDates);
             bool Type = (mType == comparison.mType);
             bool State = (mState == comparison.mState);
 
-            if (Description && Price && DisplayDates && Type && State)
+            if (Description && Price && Type && State)
             {
                 return true;
             }
