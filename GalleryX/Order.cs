@@ -45,11 +45,32 @@ namespace GalleryBusiness
             get { return mOrderDate.ToString(); }
         }
 
-        public void XmlSave(XmlTextWriter pXmlOut)
+        /// <summary>
+        /// Write Order information to an Xml file stream.
+        /// </summary>
+        /// <param name="pXmlOut"><Xml stream to write to./param>
+        /// <param name="pID">ID of the Order to write.</param>
+        public void XmlSave(XmlTextWriter pXmlOut, int pID)
         {
             pXmlOut.WriteStartElement("Order");
+            pXmlOut.WriteAttributeString("ID", pID.ToString());
+            pXmlOut.WriteElementString("ArtworkID", mArtworkID.ToString());
+            pXmlOut.WriteElementString("OrderDate", mOrderDate.ToString());
             pXmlOut.WriteEndElement();
-            throw new NotImplementedException("Needs Order ID.");
+        }
+
+        /// <summary>
+        /// Load an Order from an XmlElement.
+        /// </summary>
+        /// <param name="pOrderElement">XmlElement to extract information from.</param>
+        /// <param name="pCustomer">Reference to the Customer who made the Order.</param>
+        /// <returns>Returns a loaded Order.</returns>
+        public static Order XmlLoad(XmlElement pOrderElement, Customer pCustomer)
+        {
+            int loadedArtworkID = int.Parse(pOrderElement["ArtworkID"].InnerText);
+            DateTime loadedOrderDate = DateTime.Parse(pOrderElement["OrderDate"].InnerText);
+
+            return new Order(loadedArtworkID, loadedOrderDate, pCustomer);
         }
 
         /// <summary>

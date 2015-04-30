@@ -421,10 +421,17 @@ namespace GalleryBusiness
             pXmlOut.WriteElementString("ArtistIDCount", mArtistIDCount.ToString());
             pXmlOut.WriteElementString("OrderIDCount", mOrderIDCount.ToString());
             pXmlOut.WriteElementString("CustomerIDCount", mCustomerIDCount.ToString());
+
             foreach (KeyValuePair<int, Artist> artist in mArtists)
             {
                 artist.Value.XmlSave(pXmlOut, artist.Key);
             }
+
+            foreach (KeyValuePair<int, Customer> customer in mCustomers)
+            {
+                customer.Value.XmlSave(pXmlOut, customer.Key);
+            }
+
             pXmlOut.WriteEndElement();
             pXmlOut.WriteEndDocument();
         }
@@ -468,9 +475,9 @@ namespace GalleryBusiness
             int loadedCustomerIDCount = int.Parse(pGalleryElement["OrderIDCount"].InnerText);
 
             Dictionary<int, Artist> loadedArtists = new Dictionary<int, Artist>();
-            Dictionary<int, Customer> loadedCustomeres = new Dictionary<int, Customer>();
+            Dictionary<int, Customer> loadedCustomers = new Dictionary<int, Customer>();
 
-            Gallery loadedGallery = new Gallery(loadedArtists, loadedCustomeres, loadedArtworkIDCount, loadedArtistIDCount, loadedOrderIDCount, loadedCustomerIDCount);
+            Gallery loadedGallery = new Gallery(loadedArtists, loadedCustomers, loadedArtworkIDCount, loadedArtistIDCount, loadedOrderIDCount, loadedCustomerIDCount);
 
             XmlNodeList artistNodeList = pGalleryElement.GetElementsByTagName("Artist");
             foreach (XmlNode artistNode in artistNodeList)
@@ -480,7 +487,13 @@ namespace GalleryBusiness
                 loadedArtists.Add(loadedArtistID, Artist.XmlLoad(artistElement, loadedGallery));
             }
 
-            // Load customers.
+            XmlNodeList customerNodeList = pGalleryElement.GetElementsByTagName("Customer");
+            foreach (XmlNode customerNode in customerNodeList)
+            {
+                XmlElement customerElement = (XmlElement)customerNode;
+                int loadedCustomerID = int.Parse(customerElement.GetAttribute("ID"));
+                loadedCustomers.Add(loadedCustomerID, Customer.XmlLoad(customerElement, loadedGallery));
+            }
 
             return loadedGallery;
         }

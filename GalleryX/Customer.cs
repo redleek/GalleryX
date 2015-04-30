@@ -160,6 +160,47 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// Writes Customer information to an Xml file.
+        /// </summary>
+        /// <param name="pXmlOut">Xml stream to write to.</param>
+        /// <param name="pID">ID of the customer to write.</param>
+        public void XmlSave(XmlTextWriter pXmlOut, int pID)
+        {
+            pXmlOut.WriteStartElement("Customer");
+            pXmlOut.WriteAttributeString("ID", pID.ToString());
+            pXmlOut.WriteElementString("Name", mName);
+            foreach (KeyValuePair<int, Order> order in mOrders)
+            {
+                order.Value.XmlSave(pXmlOut, order.Key);
+            }
+            pXmlOut.WriteEndElement();
+        }
+
+        /// <summary>
+        /// Load a Customer from an XmlElement.
+        /// </summary>
+        /// <param name="pCutomerElement">XmlElement to extract information from.</param>
+        /// <param name="pGallery">Reference to the Gallery.</param>
+        /// <returns>Returns a loaded Customer.</returns>
+        public static Customer XmlLoad(XmlElement pCutomerElement, Gallery pGallery)
+        {
+            string loadedName = pCutomerElement["Name"].InnerText;
+
+            Dictionary<int, Order> loadedOrders = new Dictionary<int, Order>();
+            Customer loadedCustomer = new Customer(loadedName, loadedOrders, pGallery);
+
+            XmlNodeList orderNodeList = pCutomerElement.GetElementsByTagName("Order");
+            foreach (XmlNode orderNode in orderNodeList)
+            {
+                XmlElement orderElement = (XmlElement)orderNode;
+                int loadedOrderID = int.Parse(orderElement.GetAttribute("ID"));
+                loadedOrders.Add(loadedOrderID, Order.XmlLoad(orderElement, loadedCustomer));
+            }
+
+            return loadedCustomer;
+        }
+
+        /// <summary>
         /// Gets the string value of Customer.
         /// </summary>
         /// <returns></returns>
