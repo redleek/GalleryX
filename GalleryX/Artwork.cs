@@ -399,24 +399,6 @@ namespace GalleryBusiness
         }
 
         /// <summary>
-        /// Write Artwork information to a file stream.
-        /// </summary>
-        /// <param name="pTextOut">Stream to write to.</param>
-        public void Save(System.IO.TextWriter pTextOut)
-        {
-            pTextOut.WriteLine(mDescription);
-            pTextOut.WriteLine(mPrice);
-            // Writes the list of display dates to file.
-            pTextOut.WriteLine(mDisplayDates.Count);
-            foreach (DateTime displaydate in mDisplayDates)
-            {
-                pTextOut.WriteLine(displaydate);
-            }
-            pTextOut.WriteLine(mType);
-            pTextOut.WriteLine(mState);
-        }
-
-        /// <summary>
         /// Write Artwork information to an Xml file stream.
         /// </summary>
         /// <param name="pXmlOut">XML stream to write to.</param>
@@ -427,109 +409,59 @@ namespace GalleryBusiness
             pXmlOut.WriteAttributeString("ID", pID.ToString());
             pXmlOut.WriteElementString("Description", mDescription);
             pXmlOut.WriteElementString("Price", mPrice.ToString());
-            // Insert display dates here.
+
             if (mDisplayDates.Count > 0)
             {
-                pXmlOut.WriteStartElement("DisplayDates");
                 foreach (DateTime DisplayDate in mDisplayDates)
                 {
                     pXmlOut.WriteStartElement("DisplayDate");
                     pXmlOut.WriteString(DisplayDate.ToString());
                     pXmlOut.WriteEndElement();
                 }
-                pXmlOut.WriteEndElement();
             }
+
             pXmlOut.WriteElementString("Type", mType.ToString());
             pXmlOut.WriteElementString("State", mState.ToString());
             pXmlOut.WriteEndElement();
         }
 
-#if DEBUG
         /// <summary>
-        /// Write Artwork information to a file.
+        /// Load an Artwork from an XmlElement.
         /// </summary>
-        /// <param name="pFileName">File to write to.</param>
-        public void Save(string pFileName)
+        /// <param name="pArtworkElement">XmlElement to extract information from.</param>
+        /// <param name="pOwner">Refernece to the owner(Artist) of the Artwork.</param>
+        /// <returns>Returns a loaded Artwork.</returns>
+        public static Artwork XmlLoad(XmlElement pArtworkElement, Artist pOwner)
         {
-            System.IO.TextWriter TextOut = null;
-            try
-            {
-                TextOut = new System.IO.StreamWriter(pFileName);
-                Save(TextOut);
-            }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (TextOut != null)
-                {
-                    TextOut.Close();
-                }
-            }
-        }
-#endif
+            string loadedDescription = pArtworkElement["Description"].InnerText;
+            decimal loadedPrice = decimal.Parse(pArtworkElement["Price"].InnerText);
+            ArtworkType loadedType = (ArtworkType)Enum.Parse(
+                typeof(ArtworkType),
+                pArtworkElement["Type"].InnerText
+                );
+            ArtworkState loadedState = (ArtworkState)Enum.Parse(
+                typeof(ArtworkState),
+                pArtworkElement["State"].InnerText
+                );
 
-        /// <summary>
-        /// Load Artwork information from a file stream.
-        /// </summary>
-        /// <param name="pTextIn">Stream to load from.</param>
-        /// <returns>Returns a fully loaded Artwork class.</returns>
-        public static Artwork Load(System.IO.TextReader pTextIn, Artist pOwner)
-        {
-            string loadDescription = pTextIn.ReadLine();
-            decimal loadPrice = decimal.Parse(pTextIn.ReadLine());
-            int loadDisplayDatesCount = int.Parse(pTextIn.ReadLine());
-            List<DateTime> loadDisplayDates = new List<DateTime>();
-            // Load each display date into new display dates list only if there are any in the file.
-            if (loadDisplayDatesCount > 0)
-            {
-                for (int loadCount = 0; loadCount < loadDisplayDatesCount; loadCount++)
-                {
-                    loadDisplayDates.Add(DateTime.Parse(pTextIn.ReadLine()));
-                }
-            }
-            ArtworkType loadType = (ArtworkType)Enum.Parse(
-                                   typeof(ArtworkType),
-                                   pTextIn.ReadLine()
-                                   );
-            ArtworkState loadState = (ArtworkState)Enum.Parse(
-                                  typeof(ArtworkState),
-                                  pTextIn.ReadLine()
-                                  );
-            return new Artwork(loadDescription, loadPrice, loadDisplayDates, loadType, loadState, pOwner);
-        }
+            List<DateTime> loadedDisplayDates = new List<DateTime>();
+            Artwork loadedArtwork = new Artwork(
+                loadedDescription,
+                loadedPrice,
+                loadedDisplayDates,
+                loadedType,
+                loadedState,
+                pOwner
+                );
 
-#if DEBUG
-        /// <summary>
-        /// Load Artwork information form a file.
-        /// </summary>
-        /// <param name="pFileName">File to load from.</param>
-        /// <returns>Returns a fully loaded Artwork class.</returns>
-        public static Artwork Load(string pFileName, Artist pOwner)
-        {
-            Artwork outArtwork;
-            System.IO.TextReader TextIn = null;
-            try
+            XmlNodeList displayDateNodeList = pArtworkElement.GetElementsByTagName("DisplayDate");
+            foreach (XmlNode displayDateNode in displayDateNodeList)
             {
-                TextIn = new System.IO.StreamReader(pFileName);
-                outArtwork = Load(TextIn, pOwner);
+                loadedDisplayDates.Add(DateTime.Parse(displayDateNode.InnerText));
             }
-            catch (Exception E)
-            {
-                throw E;
-            }
-            finally
-            {
-                if (TextIn != null)
-                {
-                    TextIn.Close();
-                }
-            }
-            return outArtwork;
+
+            return loadedArtwork;
         }
-#endif
 
         /// <summary>
         /// String format of the Artwork.

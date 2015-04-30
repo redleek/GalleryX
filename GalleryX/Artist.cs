@@ -218,6 +218,30 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// Load an Artist from an XmlElement.
+        /// </summary>
+        /// <param name="pArtistElement">XmlElement to extract information from.</param>
+        /// <param name="pSeller">Refernece to the Gallery.</param>
+        /// <returns>Returns a loaded Artist.</returns>
+        public static Artist XmlLoad(XmlElement pArtistElement, Gallery pSeller)
+        {
+            string loadedName = pArtistElement["Name"].InnerText;
+
+            Dictionary<int, Artwork> loadedStock = new Dictionary<int, Artwork>();
+            Artist loadedArtist = new Artist(loadedName, loadedStock, pSeller);
+
+            XmlNodeList artworkNodeList = pArtistElement.GetElementsByTagName("Artwork");
+            foreach (XmlNode artworkNode in artworkNodeList)
+            {
+                XmlElement artworkElement = (XmlElement)artworkNode;
+                int loadedArtworkID = int.Parse(artworkElement.GetAttribute("ID"));
+                loadedStock.Add(loadedArtworkID, Artwork.XmlLoad(artworkElement, loadedArtist));
+            }
+
+            return loadedArtist;
+        }
+
+        /// <summary>
         /// String format of the Artist.
         /// </summary>
         /// <returns>Returns a string of all the data members of the Artist.</returns>

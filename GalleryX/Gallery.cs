@@ -409,6 +409,10 @@ namespace GalleryBusiness
             }
         }
 
+        /// <summary>
+        /// Save key Gallery information to a XmlText stream.
+        /// </summary>
+        /// <param name="pXmlOut">XmlText stream to write to.</param>
         public void XmlSave(XmlTextWriter pXmlOut)
         {
             pXmlOut.WriteStartDocument();
@@ -425,6 +429,10 @@ namespace GalleryBusiness
             pXmlOut.WriteEndDocument();
         }
 
+        /// <summary>
+        /// Save a Gallery to an Xml file.
+        /// </summary>
+        /// <param name="pFilename">Filename of the file to save to.</param>
         public void XmlSave(string pFilename)
         {
             XmlTextWriter XmlOut = null;
@@ -445,6 +453,57 @@ namespace GalleryBusiness
                     XmlOut.Close();
                 }
             }
+        }
+
+        /// <summary>
+        /// Load Gallery information from XmlElement.
+        /// </summary>
+        /// <param name="pGalleryElement">XmlElement to extract information from.</param>
+        /// <returns>Returns a loaded Gallery.</returns>
+        public static Gallery XmlLoad(XmlElement pGalleryElement)
+        {
+            int loadedArtworkIDCount = int.Parse(pGalleryElement["ArtworkIDCount"].InnerText);
+            int loadedArtistIDCount = int.Parse(pGalleryElement["ArtistIDCount"].InnerText);
+            int loadedOrderIDCount = int.Parse(pGalleryElement["OrderIDCount"].InnerText);
+            int loadedCustomerIDCount = int.Parse(pGalleryElement["OrderIDCount"].InnerText);
+
+            Dictionary<int, Artist> loadedArtists = new Dictionary<int, Artist>();
+            Dictionary<int, Customer> loadedCustomeres = new Dictionary<int, Customer>();
+
+            Gallery loadedGallery = new Gallery(loadedArtists, loadedCustomeres, loadedArtworkIDCount, loadedArtistIDCount, loadedOrderIDCount, loadedCustomerIDCount);
+
+            XmlNodeList artistNodeList = pGalleryElement.GetElementsByTagName("Artist");
+            foreach (XmlNode artistNode in artistNodeList)
+            {
+                XmlElement artistElement = (XmlElement)artistNode;
+                int loadedArtistID = int.Parse(artistElement.GetAttribute("ID"));
+                loadedArtists.Add(loadedArtistID, Artist.XmlLoad(artistElement, loadedGallery));
+            }
+
+            // Load customers.
+
+            return loadedGallery;
+        }
+
+        /// <summary>
+        /// Load a Gallery from Xml file.
+        /// </summary>
+        /// <param name="pFilename">Filename to load from.</param>
+        /// <returns>A loaded Gallery.</returns>
+        public static Gallery XmlLoad(string pFilename)
+        {
+            Gallery outGallery;
+            XmlDocument loadedDocument = new XmlDocument();
+            try
+            {
+                loadedDocument.Load(pFilename);
+                outGallery = XmlLoad(loadedDocument.DocumentElement);
+            }
+            catch (Exception E)
+            {
+                throw E;
+            }
+            return outGallery;
         }
 
         /// <summary>
