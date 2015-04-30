@@ -300,6 +300,42 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// Find an Order by it's ID.
+        /// </summary>
+        /// <param name="pID">ID to search for.</param>
+        /// <returns></returns>
+        public KeyValuePair<int, Order> FindOrderByID(int pID)
+        {
+            KeyValuePair<int, Order> KVPorder;
+            foreach (Customer customer in mCustomers.Values)
+            {
+                if ((KVPorder = customer.FindOrderByID(pID)).Key != -1)
+                {
+                    return KVPorder;
+                }
+            }
+            return new KeyValuePair<int, Order>(-1, null);
+        }
+
+        /// <summary>
+        /// Find an Order by the ID of the Artwork it includes.
+        /// </summary>
+        /// <param name="pArtworkID">Artwork ID to search for.</param>
+        /// <returns>Returns the KeyValuePair of the found Order.</returns>
+        public KeyValuePair<int, Order> FindOrderByArtworkID(int pArtworkID)
+        {
+            KeyValuePair<int, Order> KVPorder;
+            foreach (Customer customer in mCustomers.Values)
+            {
+                if ((KVPorder = customer.FindOrderByArtworkID(pArtworkID)).Key != -1)
+                {
+                    return KVPorder;
+                }
+            }
+            return new KeyValuePair<int, Order>(-1, null);
+        }
+
+        /// <summary>
         /// Gives a new Artwork a new ID.
         /// </summary>
         /// <returns>New ID for an Artwork.</returns>
