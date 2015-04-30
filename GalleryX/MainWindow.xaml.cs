@@ -28,7 +28,27 @@ namespace GalleryX
             InitializeComponent();
             string thisGalleryName = "GalleryX";
             Title = thisGalleryName;
-            gallery = new Gallery();
+            try
+            {
+                gallery = new Gallery();//Gallery.XmlLoad("test.xml");
+            }
+            catch (GalleryException E)
+            {
+                //MessageBox.Show(E.Message, "File loading error.");
+            }
+
+
+            Artist artist;
+            for (int i = 0; i < 1000; i++)
+            {
+                gallery.AddArtist(artist = new Artist("Rob Miles", gallery));
+                for (int j = 0; j < 1000; j++)
+                {
+                    gallery.AddArtwork(0, new Artwork("Mona Lisa", 12.99m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.AwaitingGalleryEntry, artist));
+                }
+            }
+            gallery.XmlSave("test.xml");
+
         }
     }
 }

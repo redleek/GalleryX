@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.IO;
 
 namespace GalleryBusiness
 {
@@ -398,7 +399,7 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pFilename">File name of the saved file.</param>
         /// <returns>Returns byte array of the checksum.</returns>
-        public byte[] GetMD5(string pFilename)
+        public static byte[] GetMD5(string pFilename)
         {
             using (var MD5 = System.Security.Cryptography.MD5.Create())
             {
@@ -443,6 +444,7 @@ namespace GalleryBusiness
         public void XmlSave(string pFilename)
         {
             XmlTextWriter XmlOut = null;
+            TextWriter MD5Out = null;
             try
             {
                 XmlOut = new XmlTextWriter(pFilename, Encoding.ASCII);
@@ -458,6 +460,30 @@ namespace GalleryBusiness
                 if (XmlOut != null)
                 {
                     XmlOut.Close();
+                }
+            }
+
+            try
+            {
+                MD5Out = new StreamWriter(pFilename + "-md5.txt");
+                byte[] MD5hash = GetMD5(pFilename);
+                // Write amount of hash entries in file.
+                MD5Out.WriteLine(MD5hash.Length);
+                // Do some encryption on MD5 here.
+                for (int hashIndex = 0; hashIndex < MD5hash.Length; hashIndex++)
+                {
+                    MD5Out.WriteLine(MD5hash[hashIndex]);
+                }
+            }
+            catch (Exception E)
+            {
+                throw E;
+            }
+            finally
+            {
+                if (MD5Out != null)
+                {
+                    MD5Out.Close();
                 }
             }
         }
@@ -505,16 +531,58 @@ namespace GalleryBusiness
         /// <returns>A loaded Gallery.</returns>
         public static Gallery XmlLoad(string pFilename)
         {
-            Gallery outGallery;
-            XmlDocument loadedDocument = new XmlDocument();
+            TextReader MD5In = null;
             try
             {
+                // Get saved MD5 hash.
+                MD5In = new StreamReader(pFilename + "-md5.txt");
+                List<byte> MD5hashList = new List<byte>();
+                int HashLength = int.Parse(MD5In.ReadLine());
+                for (int hashIndex = 0; hashIndex < HashLength; hashIndex++)
+                {
+                    MD5hashList.Add(byte.Parse(MD5In.ReadLine()));
+                }
+                byte[] MD5FileHash = MD5hashList.ToArray();
+
+                // Calculate MD5 hash of content file.
+                byte[] MD5ContentHash = GetMD5(pFilename);
+
+                // Compare.
+                for (int hashIndex = 0; hashIndex < MD5ContentHash.Length; hashIndex++)
+                {
+                    if (MD5FileHash[hashIndex] != MD5ContentHash[hashIndex])
+                    {
+                        throw new GalleryException("The saved content file does not have the same checksum as the saved checksum. Data integrity lost.");
+                    }
+                }
+            }
+            catch (Exception E)
+            {
+                throw E;
+            }
+            finally
+            {
+                if (MD5In != null)
+                {
+                    MD5In.Close();
+                }
+            }
+
+            Gallery outGallery;
+            XmlDocument loadedDocument = null;
+            try
+            {
+                loadedDocument = new XmlDocument();
                 loadedDocument.Load(pFilename);
                 outGallery = XmlLoad(loadedDocument.DocumentElement);
             }
             catch (Exception E)
             {
                 throw E;
+            }
+            finally
+            {
+                loadedDocument = null;
             }
             return outGallery;
         }
