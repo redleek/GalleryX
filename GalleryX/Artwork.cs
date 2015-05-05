@@ -236,6 +236,7 @@ namespace GalleryBusiness
         public ArtworkType Type
         {
             get { return mType; }
+            set { mType = value; }
         }
 
         /// <summary>

@@ -21,43 +21,182 @@ namespace GalleryX
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Main Gallery object.
+        /// </summary>
         Gallery gallery;
+
+        string SaveFilename = "GalleryX.xml";
 
         public MainWindow()
         {
             InitializeComponent();
             string thisGalleryName = "GalleryX";
             Title = thisGalleryName;
+        }
+
+        private void Window_Initialized(object sender, EventArgs e)
+        {
             try
             {
-                gallery = new Gallery();//Gallery.XmlLoad("test.xml");
+                gallery = Gallery.XmlLoad(SaveFilename);
             }
-            catch (GalleryException E)
+            catch (GalleryExceptionMD5 E)
             {
-                //MessageBox.Show(E.Message, "File loading error");
+                MessageBox.Show(E.Message);
+                Environment.Exit(1);
+            }
+            catch (System.IO.FileNotFoundException E)
+            {
+                MessageBox.Show(E.Message, "File not found");
+                MessageBox.Show("Creating new Gallery.", "New Gallery");
+                gallery = new Gallery();
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            gallery.XmlSave(SaveFilename);
+        }
+
+        private void ArtistSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ArtistSearchListBox.ItemsSource = gallery.FindArtist(ArtistSearchTextBox.Text);
+            }
+            catch (Exception E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void ArtistButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Artist newArtist = new Artist(ArtistNameTextBox.Text, gallery);
+                gallery.AddArtist(newArtist);
+            }
+            catch (Exception E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void SearchArtworkButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Artist> selectedArtist = (KeyValuePair<int, Artist>)ArtistSearchListBox.SelectedItem;
+                SearchArtworkListBox.ItemsSource = selectedArtist.Value.FindArtwork(SearchArtworkTextBox.Text);
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
             }
 
-            
-            Artist artist;
-            for (int i = 0; i < 700; i++)
+        }
+
+        private void AddArtworkButton_Click(object sender, RoutedEventArgs e)
+        {
+            KeyValuePair<int, Artist> selectedArtist;
+            try
             {
-                gallery.AddArtist(artist = new Artist("Rob Miles", gallery));
-                for (int j = 0; j < 30; j++)
-                {
-                    gallery.AddArtwork(0, new Artwork("Mona Lisa" + j, 12.99m - 0.001m, DateTime.Now, Artwork.ArtworkType.Painting, Artwork.ArtworkState.AwaitingGalleryEntry, artist));
-                }
+                selectedArtist = (KeyValuePair<int, Artist>)ArtistSearchListBox.SelectedItem;
+
+                Artwork newArtwork = new Artwork(
+                    DescriptionTextBox.Text,
+                    decimal.Parse(PriceTextBox.Text),
+                    DateTime.Now,
+                    (Artwork.ArtworkType)Enum.Parse(
+                        typeof(Artwork.ArtworkType),
+                        ArtworkTypeComboBox.Text),
+                    (Artwork.ArtworkState)Enum.Parse(
+                        typeof(Artwork.ArtworkState),
+                        ArtworkStateComboBox.Text),
+                    selectedArtist.Value
+                    );
+
+                selectedArtist.Value.AddArtwork(newArtwork);
             }
-            Customer customer;
-            for (int i = 0; i < 700; i++)
+            catch (NullReferenceException)
             {
-                gallery.AddCustomer(customer = new Customer("Kevin Elner", gallery));
-                for (int j = 0; j < 30; j++)
-                {
-                    customer.AddOrder(new Order(i, DateTime.Now, customer));
-                }
+                ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
             }
-            gallery.XmlSave("test.xml");
-            
+            catch (System.FormatException E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void ArtistSearchListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            KeyValuePair<int, Artist> selectedArtist = (KeyValuePair<int, Artist>)ArtistSearchListBox.SelectedItem;
+            ArtistNameTextBox.Text = selectedArtist.Value.Name;
+        }
+
+        private void EditArtistButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Artist> selectedArtist = (KeyValuePair<int, Artist>)ArtistSearchListBox.SelectedItem;
+                selectedArtist.Value.UpdateName(ArtistNameTextBox.Text);
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
+            }
+            catch (ArtistExceptionBadName E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void SearchArtworkListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            KeyValuePair<int, Artwork> selectedArtwork = (KeyValuePair<int, Artwork>)SearchArtworkListBox.SelectedItem;
+            DescriptionTextBox.Text = selectedArtwork.Value.Description;
+            PriceTextBox.Text = selectedArtwork.Value.Price.ToString();
+            ArtworkTypeComboBox.SelectedIndex = (int)selectedArtwork.Value.Type;
+            ArtworkStateComboBox.SelectedIndex = (int)selectedArtwork.Value.State;
+            DisplayDateLabel.Content = selectedArtwork.Value.MostRecentDisplayDateString;
+        }
+
+        private void EditArtworkButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Artwork> selectedArtwork = (KeyValuePair<int, Artwork>)SearchArtworkListBox.SelectedItem;
+                selectedArtwork.Value.UpdateDescription(DescriptionTextBox.Text);
+                selectedArtwork.Value.UpdatePrice(
+                    decimal.Parse(PriceTextBox.Text)
+                    );
+                gallery.ChangeArtworkState(
+                    selectedArtwork.Key,
+                    (Artwork.ArtworkState)Enum.Parse(
+                        typeof(Artwork.ArtworkState),
+                        ArtworkStateComboBox.Text), 
+                    DateTime.Now
+                    );
+                selectedArtwork.Value.Type = (Artwork.ArtworkType)Enum.Parse(
+                    typeof(Artwork.ArtworkType),
+                    ArtworkTypeComboBox.Text
+                    );
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Artwork selected. Please select an Artwork from the search box.";
+            }
+            catch (ArtworkException E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void CheckArtworkExpired_Click(object sender, RoutedEventArgs e)
+        {
+            ExpiredArtworkListBox.ItemsSource = gallery.ArtworkGalleryTimeExpired();
         }
     }
 }

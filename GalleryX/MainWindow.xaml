@@ -1,9 +1,50 @@
 ﻿<Window x:Class="GalleryX.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525" ResizeMode="NoResize" Icon="GalleryLogo.png">
+        Title="MainWindow" Height="930" Width="800" ResizeMode="NoResize" Icon="GalleryLogo.png" Initialized="Window_Initialized" Closed="Window_Closed">
+
+
+
     <Grid>
-        
-        
+        <Label Content="Artists" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="Search Artists by name:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="ArtistSearchTextBox" HorizontalAlignment="Left" Height="23" Margin="150,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" UndoLimit="140"/>
+        <Button x:Name="ArtistSearchButton" Content="Search" HorizontalAlignment="Left" Margin="275,47,0,0" VerticalAlignment="Top" Width="75" Click="ArtistSearchButton_Click"/>
+        <ListBox x:Name="ArtistSearchListBox" HorizontalAlignment="Left" Height="155" Margin="10,72,0,0" VerticalAlignment="Top" Width="340" MouseDoubleClick="ArtistSearchListBox_MouseDoubleClick"/>
+        <Label Content="Add/Edit Artist" HorizontalAlignment="Left" Margin="10,232,0,0" VerticalAlignment="Top"/>
+        <Label Content="Name:" HorizontalAlignment="Left" Margin="10,263,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="ArtistNameTextBox" HorizontalAlignment="Left" Height="23" Margin="59,267,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="291"/>
+        <Button Content="Add Artist" HorizontalAlignment="Left" Margin="275,295,0,0" VerticalAlignment="Top" Width="75" Click="ArtistButton_Click"/>
+        <Label Content="Search for Artwork by description:" HorizontalAlignment="Left" Margin="10,329,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="SearchArtworkTextBox" HorizontalAlignment="Left" Height="23" Margin="10,360,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="260" UndoLimit="140"/>
+        <Button x:Name="SearchArtworkButton" Content="Search" HorizontalAlignment="Left" Margin="275,363,0,0" VerticalAlignment="Top" Width="75" Click="SearchArtworkButton_Click"/>
+        <ListBox x:Name="SearchArtworkListBox" HorizontalAlignment="Left" Height="131" Margin="10,388,0,0" VerticalAlignment="Top" Width="340" MouseDoubleClick="SearchArtworkListBox_MouseDoubleClick"/>
+        <Label Content="Add/Edit Artwork" HorizontalAlignment="Left" Margin="10,524,0,0" VerticalAlignment="Top"/>
+        <Label Content="Description:" HorizontalAlignment="Left" Margin="10,555,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="DescriptionTextBox" HorizontalAlignment="Left" Height="23" Margin="106,558,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="244"/>
+        <Label Content="Price:" HorizontalAlignment="Left" Margin="10,585,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="PriceTextBox" HorizontalAlignment="Left" Height="23" Margin="106,589,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="244"/>
+        <Label Content="Artwork Type:" HorizontalAlignment="Left" Margin="10,616,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="ArtworkTypeComboBox" HorizontalAlignment="Left" Margin="106,620,0,0" VerticalAlignment="Top" Width="244" SelectedIndex="0">
+            <ComboBoxItem Content="Painting"/>
+            <ComboBoxItem Content="Sculpture"/>
+        </ComboBox>
+        <Label Content="Artwork State:" HorizontalAlignment="Left" Margin="10,647,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="ArtworkStateComboBox" HorizontalAlignment="Left" Margin="106,651,0,0" VerticalAlignment="Top" Width="244" SelectedIndex="0">
+            <ComboBoxItem Content="InGallery"/>
+            <ComboBoxItem Content="AwaitingGalleryEntry"/>
+            <ComboBoxItem Content="Sold"/>
+            <ComboBoxItem Content="ReturnedToArtist"/>
+        </ComboBox>
+        <Label x:Name="ExceptionMessageAreaLabel" Content="" HorizontalAlignment="Left" Margin="10,865,0,0" VerticalAlignment="Top" Width="774"/>
+        <Button x:Name="AddArtworkButton" Content="Add Artwork" HorizontalAlignment="Left" Margin="275,705,0,0" VerticalAlignment="Top" Width="75" Click="AddArtworkButton_Click"/>
+        <Button x:Name="EditArtistButton" Content="Edit Artist" HorizontalAlignment="Left" Margin="195,295,0,0" VerticalAlignment="Top" Width="75" Click="EditArtistButton_Click"/>
+        <Button x:Name="EditArtworkButton" Content="Edit Artwork" HorizontalAlignment="Left" Margin="195,705,0,0" VerticalAlignment="Top" Width="75" Click="EditArtworkButton_Click"/>
+        <Label Content="Display Date: " HorizontalAlignment="Left" Margin="10,678,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="DisplayDateLabel" Content="" HorizontalAlignment="Left" Margin="106,678,0,0" VerticalAlignment="Top" Width="244"/>
+        <Button x:Name="CheckArtworkExpired" Content="Check Artwork Expirery Time" HorizontalAlignment="Left" Margin="10,734,0,0" VerticalAlignment="Top" Width="168" Click="CheckArtworkExpired_Click"/>
+        <ListBox x:Name="ExpiredArtworkListBox" HorizontalAlignment="Left" Height="101" Margin="10,759,0,0" VerticalAlignment="Top" Width="340"/>
+
+
     </Grid>
 </Window>

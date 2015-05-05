@@ -19,6 +19,16 @@ namespace GalleryBusiness
     }
 
     /// <summary>
+    /// MD5 checksum Exception class.
+    /// </summary>
+    class GalleryExceptionMD5 : GalleryException
+    {
+        public GalleryExceptionMD5(string message)
+            : base(message)
+        { }
+    }
+
+    /// <summary>
     /// Art Gallery which holds Customers, Orders, Artists and Artworks.
     /// </summary>
     class Gallery
@@ -86,6 +96,20 @@ namespace GalleryBusiness
         }
 
         /// <summary>
+        /// Finds all the Artworks in the Gallery that have had their Gallery time expired.
+        /// </summary>
+        /// <returns>Returns a list of all artworks with their Gaallery times expired.</returns>
+        public List<KeyValuePair<int, Artwork>> ArtworkGalleryTimeExpired()
+        {
+            List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
+            foreach (Artist artist in mArtists.Values)
+            {
+                FoundArtworks.AddRange(artist.ArtworksInGalleryExpired());
+            }
+            return FoundArtworks;
+        }
+
+        /// <summary>
         /// Add an Artist to the Gallery.
         /// </summary>
         /// <param name="pNewArtist">Reference to the Artist to add.</param>
@@ -116,20 +140,25 @@ namespace GalleryBusiness
         public List<KeyValuePair<int, Artist>> FindArtist(string pName)
         {
             pName = pName.Trim();
-            if (pName.Length > 0 && pName.Length <= Artist.MAX_NAME_CHARS)
+            List<KeyValuePair<int, Artist>> FoundArtists = new List<KeyValuePair<int, Artist>>();
+            if (pName.Length != 0)
             {
-                List<KeyValuePair<int, Artist>> FoundArtists = new List<KeyValuePair<int, Artist>>();
-                foreach (KeyValuePair<int, Artist> KVPartist in mArtists)
+                if (pName.Length <= Artist.MAX_NAME_CHARS)
                 {
-                    if (KVPartist.Value.Name.Contains(pName) ||
-                        KVPartist.Value.Name.ToLower().Contains(pName.ToLower()))
+
+                    foreach (KeyValuePair<int, Artist> KVPartist in mArtists)
                     {
-                        FoundArtists.Add(KVPartist);
+                        if (KVPartist.Value.Name.Contains(pName) ||
+                            KVPartist.Value.Name.ToLower().Contains(pName.ToLower()))
+                        {
+                            FoundArtists.Add(KVPartist);
+                        }
                     }
+                    return FoundArtists;
                 }
-                return FoundArtists;
+                throw new ArtistException("Entered string contains too many characters, limit: " + Artist.MAX_NAME_CHARS);
             }
-            throw new ArtistException("Entered string contains too many characters, limit: " + Artist.MAX_NAME_CHARS);
+            return FoundArtists;
         }
 
         /// <summary>
@@ -553,7 +582,7 @@ namespace GalleryBusiness
                 {
                     if (MD5FileHash[hashIndex] != MD5ContentHash[hashIndex])
                     {
-                        throw new GalleryException("The saved content file does not have the same checksum as the saved checksum. Data integrity lost.");
+                        throw new GalleryExceptionMD5("The saved content file does not have the same checksum as the saved checksum. Data integrity lost.");
                     }
                 }
             }

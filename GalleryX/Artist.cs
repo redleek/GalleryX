@@ -20,9 +20,9 @@ namespace GalleryBusiness
     /// <summary>
     /// Artist invalid name Exception.
     /// </summary>
-    class ArtistBadNameException : ArtistException
+    class ArtistExceptionBadName : ArtistException
     {
-        public ArtistBadNameException(string message)
+        public ArtistExceptionBadName(string message)
             : base(message)
         { }
     }
@@ -53,7 +53,7 @@ namespace GalleryBusiness
         public const int MAX_NAME_CHARS = 20;
 
         private string mName;
-        private Dictionary<int, Artwork> mStock;
+        public Dictionary<int, Artwork> mStock;
         private Gallery mSeller;
 
         /// <summary>
@@ -146,21 +146,26 @@ namespace GalleryBusiness
         /// <returns>Returns a list of found Keys and Artworks. Throws exception if string is invalid.</returns>
         public List<KeyValuePair<int, Artwork>> FindArtwork(string pDescription)
         {
+            List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
             pDescription = pDescription.Trim();
-            if (pDescription.Length > 0 && pDescription.Length <= Artwork.MAX_DESCRIPTION_CHARS)
+            if (pDescription.Length != 0)
             {
-                List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
-                foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
+                if (pDescription.Length <= Artwork.MAX_DESCRIPTION_CHARS)
                 {
-                    if (KVPartwork.Value.Description.Contains(pDescription) ||
-                        KVPartwork.Value.Description.ToLower().Contains(pDescription.ToLower()))
+                    
+                    foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
                     {
-                        FoundArtworks.Add(KVPartwork);
+                        if (KVPartwork.Value.Description.Contains(pDescription) ||
+                            KVPartwork.Value.Description.ToLower().Contains(pDescription.ToLower()))
+                        {
+                            FoundArtworks.Add(KVPartwork);
+                        }
                     }
+                    return FoundArtworks;
                 }
-                return FoundArtworks;
+                throw new ArtworkException("Entered string contains too many characters, limit: " + Artwork.MAX_DESCRIPTION_CHARS);
             }
-            throw new ArtworkException("Entered string contains too many characters, limit: " + Artwork.MAX_DESCRIPTION_CHARS);
+            return FoundArtworks;
         }
 
         /// <summary>
@@ -178,7 +183,7 @@ namespace GalleryBusiness
                     mName = pNewName;
                     return true;
                 }
-                throw new ArtistBadNameException("Description length is too long by " + (pNewName.Length - MAX_NAME_CHARS) + "characters.");
+                throw new ArtistExceptionBadName("Description length is too long by " + (pNewName.Length - MAX_NAME_CHARS) + " characters.");
             }
             return false;
         }
@@ -198,6 +203,23 @@ namespace GalleryBusiness
                 }
             }
             return new KeyValuePair<int, Artwork>(-1, null);
+        }
+
+        /// <summary>
+        /// Looks for Artworks that have had their Gallery time expired.
+        /// </summary>
+        /// <returns>Returns a list of Artworks with their Gallery times expired.</returns>
+        public List<KeyValuePair<int, Artwork>> ArtworksInGalleryExpired()
+        {
+            List<KeyValuePair<int, Artwork>> FoundArtworks = new List<KeyValuePair<int, Artwork>>();
+            foreach (KeyValuePair<int, Artwork> KVPartwork in mStock)
+            {
+                if (KVPartwork.Value.GalleryTimeExpired(DateTime.Now))
+                {
+                    FoundArtworks.Add(KVPartwork);
+                }
+            }
+            return FoundArtworks;
         }
 
         /// <summary>
