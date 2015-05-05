@@ -17,28 +17,18 @@ namespace GalleryBusiness
         { }
     }
 
+    /// <summary>
+    /// Incorrect name Exception.
+    /// </summary>
+    class CustomerExceptionBadName : CustomerException
+    {
+        public CustomerExceptionBadName(string message)
+            : base(message)
+        { }
+    }
+
     class Customer
     {
-        /// <summary>
-        /// Basic Exception class for Customers.
-        /// </summary>
-        class CustomerException : System.Exception
-        {
-            public CustomerException(string message)
-                : base(message)
-            { }
-        }
-
-        /// <summary>
-        /// Incorrect name Exception.
-        /// </summary>
-        class CustomerExceptionBadName : CustomerException
-        {
-            public CustomerExceptionBadName(string message)
-                : base(message)
-            { }
-        }
-
         /// <summary>
         /// Maximum allowed characters in Name.
         /// </summary>
@@ -78,7 +68,7 @@ namespace GalleryBusiness
         /// </summary>
         /// <param name="pNewName">New name of the Customer.</param>
         /// <returns>Returns whether or not the name is valid.</returns>
-        private bool UpdateName(string pNewName)
+        public bool UpdateName(string pNewName)
         {
             pNewName = pNewName.Trim();
             if (pNewName != "")
@@ -129,17 +119,18 @@ namespace GalleryBusiness
         /// Find an Order by the ID of the Artwork it includes.
         /// </summary>
         /// <param name="pArtworkID">ID of the Artwork in the Order to search for.</param>
-        /// <returns>Returns the KeyValuePair of the found Artwork.</returns>
-        public KeyValuePair<int, Order> FindOrderByArtworkID(int pArtworkID)
+        /// <returns>Returns the List of the KeyValuePairs of the found Artworks.</returns>
+        public List<KeyValuePair<int, Order>> FindOrderByArtworkID(int pArtworkID)
         {
+            List<KeyValuePair<int, Order>> FoundOrders = new List<KeyValuePair<int, Order>>();
             foreach (KeyValuePair<int, Order> KVPorder in mOrders)
             {
                 if (KVPorder.Value.ArtworkID == pArtworkID)
                 {
-                    return KVPorder;
+                    FoundOrders.Add(KVPorder);
                 }
             }
-            return new KeyValuePair<int, Order>(-1, null);
+            return FoundOrders;
         }
 
         /// <summary>

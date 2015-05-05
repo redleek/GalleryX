@@ -14,7 +14,7 @@
         <Label Content="Add/Edit Artist" HorizontalAlignment="Left" Margin="10,232,0,0" VerticalAlignment="Top"/>
         <Label Content="Name:" HorizontalAlignment="Left" Margin="10,263,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="ArtistNameTextBox" HorizontalAlignment="Left" Height="23" Margin="59,267,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="291"/>
-        <Button Content="Add Artist" HorizontalAlignment="Left" Margin="275,295,0,0" VerticalAlignment="Top" Width="75" Click="ArtistButton_Click"/>
+        <Button Content="Add Artist" HorizontalAlignment="Left" Margin="275,295,0,0" VerticalAlignment="Top" Width="75" Click="AddArtistButton_Click"/>
         <Label Content="Search for Artwork by description:" HorizontalAlignment="Left" Margin="10,329,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="SearchArtworkTextBox" HorizontalAlignment="Left" Height="23" Margin="10,360,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="260" UndoLimit="140"/>
         <Button x:Name="SearchArtworkButton" Content="Search" HorizontalAlignment="Left" Margin="275,363,0,0" VerticalAlignment="Top" Width="75" Click="SearchArtworkButton_Click"/>
@@ -42,8 +42,27 @@
         <Button x:Name="EditArtworkButton" Content="Edit Artwork" HorizontalAlignment="Left" Margin="195,705,0,0" VerticalAlignment="Top" Width="75" Click="EditArtworkButton_Click"/>
         <Label Content="Display Date: " HorizontalAlignment="Left" Margin="10,678,0,0" VerticalAlignment="Top"/>
         <Label x:Name="DisplayDateLabel" Content="" HorizontalAlignment="Left" Margin="106,678,0,0" VerticalAlignment="Top" Width="244"/>
-        <Button x:Name="CheckArtworkExpired" Content="Check Artwork Expirery Time" HorizontalAlignment="Left" Margin="10,734,0,0" VerticalAlignment="Top" Width="168" Click="CheckArtworkExpired_Click"/>
+        <Button x:Name="CheckArtworkExpired" Content="Check Artwork Expiery Time" HorizontalAlignment="Left" Margin="10,734,0,0" VerticalAlignment="Top" Width="168" Click="CheckArtworkExpired_Click"/>
         <ListBox x:Name="ExpiredArtworkListBox" HorizontalAlignment="Left" Height="101" Margin="10,759,0,0" VerticalAlignment="Top" Width="340"/>
+        <Label Content="Customers" HorizontalAlignment="Left" Margin="358,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="Search Customers by name:" HorizontalAlignment="Left" Margin="358,41,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="CustomerSearchTextBox" HorizontalAlignment="Left" Height="23" Margin="519,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185"/>
+        <Button x:Name="CutomerSearchButton" Content="Search" HorizontalAlignment="Left" Margin="709,47,0,0" VerticalAlignment="Top" Width="75" Click="CutomerSearchButton_Click"/>
+        <ListBox x:Name="CustomerSearchListBox" HorizontalAlignment="Left" Height="155" Margin="358,72,0,0" VerticalAlignment="Top" Width="426" MouseDoubleClick="CustomerSearchListBox_MouseDoubleClick"/>
+        <Label Content="Add/Edit Customer" HorizontalAlignment="Left" Margin="358,232,0,0" VerticalAlignment="Top"/>
+        <Label Content="Name:" HorizontalAlignment="Left" Margin="358,263,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="CustomerNameTextBox" HorizontalAlignment="Left" Height="23" Margin="407,267,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="377"/>
+        <Button x:Name="AddCustomerButton" Content="Add Customer" HorizontalAlignment="Left" Margin="700,295,0,0" VerticalAlignment="Top" Width="84" Click="AddCustomerButton_Click"/>
+        <Button x:Name="EditCustomerButton" Content="Edit Customer" HorizontalAlignment="Left" Margin="606,295,0,0" VerticalAlignment="Top" Width="89" Click="EditCustomerButton_Click"/>
+        <Label Content="Search for Order by Artwork ID:" HorizontalAlignment="Left" Margin="358,329,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="SearchOrderTextBox" HorizontalAlignment="Left" Height="23" Margin="358,360,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="346"/>
+        <Button x:Name="SearchOrderButton" Content="Search" HorizontalAlignment="Left" Margin="709,363,0,0" VerticalAlignment="Top" Width="75" Click="SearchOrderButton_Click"/>
+        <ListBox x:Name="OrderSearchListBox" HorizontalAlignment="Left" Height="131" Margin="358,388,0,0" VerticalAlignment="Top" Width="426" MouseDoubleClick="OrderSearchListBox_MouseDoubleClick"/>
+        <Label Content="Add/Edit Order" HorizontalAlignment="Left" Margin="358,524,0,0" VerticalAlignment="Top"/>
+        <Label Content="Artwork ID:" HorizontalAlignment="Left" Margin="358,555,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="ArtworkIDTextBox" HorizontalAlignment="Left" Height="23" Margin="432,558,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="352" IsEnabled="False"/>
+        <Button x:Name="AddOrderButton" Content="Add Order" HorizontalAlignment="Left" Margin="709,586,0,0" VerticalAlignment="Top" Width="75" Click="AddOrderButton_Click"/>
+        <Button x:Name="EditOrderButton" Content="Edit Order" HorizontalAlignment="Left" Margin="629,586,0,0" VerticalAlignment="Top" Width="75" Click="EditOrderButton_Click"/>
 
 
     </Grid>

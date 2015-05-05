@@ -35,6 +35,7 @@ namespace GalleryBusiness
         public int ArtworkID
         {
             get { return mArtworkID; }
+            set { mArtworkID = value; }
         }
 
         /// <summary>

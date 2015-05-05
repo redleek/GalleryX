@@ -71,7 +71,7 @@ namespace GalleryX
             }
         }
 
-        private void ArtistButton_Click(object sender, RoutedEventArgs e)
+        private void AddArtistButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -95,7 +95,6 @@ namespace GalleryX
             {
                 ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
             }
-
         }
 
         private void AddArtworkButton_Click(object sender, RoutedEventArgs e)
@@ -125,6 +124,14 @@ namespace GalleryX
                 ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
             }
             catch (System.FormatException E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+            catch (ArtworkException E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+            catch (ArtistException E)
             {
                 ExceptionMessageAreaLabel.Content = E.Message;
             }
@@ -161,6 +168,7 @@ namespace GalleryX
             ArtworkTypeComboBox.SelectedIndex = (int)selectedArtwork.Value.Type;
             ArtworkStateComboBox.SelectedIndex = (int)selectedArtwork.Value.State;
             DisplayDateLabel.Content = selectedArtwork.Value.MostRecentDisplayDateString;
+            ArtworkIDTextBox.Text = selectedArtwork.Key.ToString();
         }
 
         private void EditArtworkButton_Click(object sender, RoutedEventArgs e)
@@ -176,7 +184,7 @@ namespace GalleryX
                     selectedArtwork.Key,
                     (Artwork.ArtworkState)Enum.Parse(
                         typeof(Artwork.ArtworkState),
-                        ArtworkStateComboBox.Text), 
+                        ArtworkStateComboBox.Text),
                     DateTime.Now
                     );
                 selectedArtwork.Value.Type = (Artwork.ArtworkType)Enum.Parse(
@@ -197,6 +205,107 @@ namespace GalleryX
         private void CheckArtworkExpired_Click(object sender, RoutedEventArgs e)
         {
             ExpiredArtworkListBox.ItemsSource = gallery.ArtworkGalleryTimeExpired();
+        }
+
+        private void CutomerSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CustomerSearchListBox.ItemsSource = gallery.FindCustomer(CustomerSearchTextBox.Text);
+            }
+            catch (Exception E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void AddCustomerButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Customer newCustomer = new Customer(CustomerNameTextBox.Text, gallery);
+                gallery.AddCustomer(newCustomer);
+            }
+            catch (Exception E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void CustomerSearchListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            KeyValuePair<int, Customer> selectedCustomer = (KeyValuePair<int, Customer>)CustomerSearchListBox.SelectedItem;
+            CustomerNameTextBox.Text = selectedCustomer.Value.Name;
+        }
+
+        private void EditCustomerButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Customer> selectedCustomer = (KeyValuePair<int, Customer>)CustomerSearchListBox.SelectedItem;
+                selectedCustomer.Value.UpdateName(CustomerNameTextBox.Text);
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Cutomer selected. Please select a Customer from the search box.";
+            }
+            catch (CustomerExceptionBadName E)
+            {
+                ExceptionMessageAreaLabel.Content = E.Message;
+            }
+        }
+
+        private void SearchOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Customer> selectedCustomer = (KeyValuePair<int, Customer>)CustomerSearchListBox.SelectedItem;
+                OrderSearchListBox.ItemsSource = selectedCustomer.Value.FindOrderByArtworkID(int.Parse(SearchOrderTextBox.Text));
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Artist selected. Please select an Artist from the search box.";
+            }
+        }
+
+        private void EditOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                KeyValuePair<int, Order> selectedOrder = (KeyValuePair<int, Order>)OrderSearchListBox.SelectedItem;
+                selectedOrder.Value.ArtworkID = int.Parse(ArtworkIDTextBox.Text);
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Order selected. Please select an Order from the search box.";
+            }
+        }
+
+        private void AddOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            KeyValuePair<int, Customer> selectedCustomer;
+            try
+            {
+                selectedCustomer = (KeyValuePair<int, Customer>)CustomerSearchListBox.SelectedItem;
+
+                Order newOrder = new Order(
+                    int.Parse(ArtworkIDTextBox.Text),
+                    DateTime.Now,
+                    selectedCustomer.Value
+                    );
+
+                selectedCustomer.Value.AddOrder(newOrder);
+            }
+            catch (NullReferenceException)
+            {
+                ExceptionMessageAreaLabel.Content = "No Customer selected. Please select a Customer from the search box.";
+            }
+        }
+
+        private void OrderSearchListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            KeyValuePair<int, Order> selectedOrder = (KeyValuePair<int, Order>)OrderSearchListBox.SelectedItem;
+            ArtworkIDTextBox.Text = selectedOrder.Value.ArtworkID.ToString();
         }
     }
 }

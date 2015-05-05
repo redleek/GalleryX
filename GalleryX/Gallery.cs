@@ -355,13 +355,14 @@ namespace GalleryBusiness
         /// <returns>Returns the KeyValuePair of the found Order.</returns>
         public KeyValuePair<int, Order> FindOrderByArtworkID(int pArtworkID)
         {
-            KeyValuePair<int, Order> KVPorder;
+            List<KeyValuePair<int, Order>> KVPorders;
             foreach (Customer customer in mCustomers.Values)
             {
-                if ((KVPorder = customer.FindOrderByArtworkID(pArtworkID)).Key != -1)
-                {
-                    return KVPorder;
-                }
+                //if ((KVPorders = customer.FindOrderByArtworkID(pArtworkID)).Key != -1)
+                //{
+                //    return KVPorders;
+                //}
+                KVPorders = customer.FindOrderByArtworkID(pArtworkID);
             }
             return new KeyValuePair<int, Order>(-1, null);
         }
