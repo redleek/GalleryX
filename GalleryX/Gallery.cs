@@ -478,7 +478,7 @@ namespace GalleryBusiness
             TextWriter MD5Out = null;
             try
             {
-                XmlOut = new XmlTextWriter(pFilename, Encoding.ASCII);
+                XmlOut = new XmlTextWriter(pFilename, Encoding.UTF8);
                 XmlOut.Formatting = Formatting.Indented;
                 XmlSave(XmlOut);
             }
