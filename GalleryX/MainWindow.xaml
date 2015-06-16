@@ -31,10 +31,10 @@
         </ComboBox>
         <Label Content="Artwork State:" HorizontalAlignment="Left" Margin="10,647,0,0" VerticalAlignment="Top"/>
         <ComboBox x:Name="ArtworkStateComboBox" HorizontalAlignment="Left" Margin="106,651,0,0" VerticalAlignment="Top" Width="244" SelectedIndex="0">
-            <ComboBoxItem Content="InGallery"/>
-            <ComboBoxItem Content="AwaitingGalleryEntry"/>
+            <ComboBoxItem Content="In Gallery"/>
+            <ComboBoxItem Content="Awaiting Gallery Entry"/>
             <ComboBoxItem Content="Sold"/>
-            <ComboBoxItem Content="ReturnedToArtist"/>
+            <ComboBoxItem Content="Returned To Artist"/>
         </ComboBox>
         <Label x:Name="ExceptionMessageAreaLabel" Content="" HorizontalAlignment="Left" Margin="10,865,0,0" VerticalAlignment="Top" Width="774"/>
         <Button x:Name="AddArtworkButton" Content="Add Artwork" HorizontalAlignment="Left" Margin="275,705,0,0" VerticalAlignment="Top" Width="75" Click="AddArtworkButton_Click"/>

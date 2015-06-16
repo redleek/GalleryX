@@ -97,6 +97,21 @@ namespace GalleryX
             }
         }
 
+	private Artwork.ArtworkState getArtworkState(string pSelectedState)
+	{
+	  switch (pSelectedState)
+	    {
+	    case "In Gallery":
+	      return Artwork.ArtworkState.InGallery;
+	    case "Awaiting Gallery Entry":
+	      return Artwork.ArtworkState.AwaitingGalleryEntry;
+	    case "Sold":
+	      return Artwork.ArtworkState.Sold;
+	    case "Returned To Artist":
+	      return Artwork.ArtworkState.ReturnedToArtist;
+	    }
+	}
+
         private void AddArtworkButton_Click(object sender, RoutedEventArgs e)
         {
             KeyValuePair<int, Artist> selectedArtist;
@@ -111,9 +126,10 @@ namespace GalleryX
                     (Artwork.ArtworkType)Enum.Parse(
                         typeof(Artwork.ArtworkType),
                         ArtworkTypeComboBox.Text),
-                    (Artwork.ArtworkState)Enum.Parse(
+		    getArtworkState(ArtworkStateComboBox.Text)
+                    /*(Artwork.ArtworkState)Enum.Parse(
                         typeof(Artwork.ArtworkState),
-                        ArtworkStateComboBox.Text),
+                        ArtworkStateComboBox.Text)*/,
                     selectedArtist.Value
                     );
 
