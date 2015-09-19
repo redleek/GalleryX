@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("GalleryX")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("University of Hull")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("GalleryX")]
-[assembly: AssemblyCopyright("Copyright © University of Hull 2015")]
+[assembly: AssemblyCopyright("Copyright © 2015 Connor Blakey")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
